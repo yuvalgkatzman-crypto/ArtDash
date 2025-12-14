@@ -1,0 +1,29 @@
+{
+  "project_info": {
+    "project_number": "353296788590",
+    "project_id": "artdash-d9f74",
+    "storage_bucket": "artdash-d9f74.firebasestorage.app"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:353296788590:android:a65f4d36e0628c8ea6ca7f",
+        "android_client_info": {
+          "package_name": "katzman.yuval.artdash"
+        }
+      },
+      "oauth_client": [],
+      "api_key": [
+        {
+          "current_key": "AIzaSyAPg3c6eVyc0Q2N1iqJntg2jsS5MmbQR4M"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": []
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}
