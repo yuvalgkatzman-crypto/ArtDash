@@ -14,8 +14,11 @@ public class AuthActivity extends AppCompatActivity {
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_auth);
-        getSupportFragmentManager().beginTransaction()
-                .replace(R.id.authFragmentContainer, new WelcomeFragment())
-                .commit();
+        if (savedInstanceState == null) {
+            getSupportFragmentManager().beginTransaction()
+                    .setReorderingAllowed(true)
+                    .add(R.id.authFragmentContainer, fragmentLogin.class, null)
+                    .commit();
+        }
     }
 }

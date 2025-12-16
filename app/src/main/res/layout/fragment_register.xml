@@ -9,13 +9,32 @@
     <ImageView
         android:id="@+id/ivLogo"
         android:layout_width="350dp"  android:layout_height="250dp" android:layout_marginTop="20dp"
-        android:layout_marginBottom="-40dp" android:src="@drawable/textlogo"
+        android:layout_marginBottom="-40dp"
+        android:src="@drawable/textlogo"
         android:scaleType="fitCenter"
-
         android:contentDescription="ArtDash Logo" />
 
+    <TextView
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="Create New Account"
+        android:textColor="#FFFFFF"
+        android:textSize="20sp"
+        android:layout_marginBottom="24dp" />
+
     <EditText
-        android:id="@+id/etEmail"
+        android:id="@+id/etFullName"
+        android:layout_width="match_parent"
+        android:layout_height="55dp"
+        android:hint="Full Name"
+        android:textColorHint="#CCFFFFFF"
+        android:textColor="#FFFFFF"
+        android:paddingStart="20dp"
+        android:background="@drawable/input_field_bg"
+        android:layout_marginBottom="16dp" />
+
+    <EditText
+        android:id="@+id/etEmailRegister"
         android:layout_width="match_parent"
         android:layout_height="55dp"
         android:hint="Email"
@@ -27,7 +46,7 @@
         android:layout_marginBottom="16dp" />
 
     <EditText
-        android:id="@+id/etPassword"
+        android:id="@+id/etPasswordRegister"
         android:layout_width="match_parent"
         android:layout_height="55dp"
         android:hint="Password"
@@ -36,25 +55,24 @@
         android:paddingStart="20dp"
         android:inputType="textPassword"
         android:background="@drawable/input_field_bg"
-        android:layout_marginBottom="32dp" />
+        android:layout_marginBottom="24dp" />
 
     <android.widget.Button
-        android:id="@+id/btnLogin"
+        android:id="@+id/btnRegister"
         android:layout_width="match_parent"
         android:layout_height="55dp"
-        android:text="Log In"
+        android:text="Sign Up"
         android:textAllCaps="false"
         android:textSize="18sp"
         android:textColor="#FFFFFF"
         android:background="@drawable/button_bg" />
 
     <TextView
-        android:id="@+id/tvGoToRegister"
+        android:id="@+id/tvBackToLogin"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:text="New here? Create Account"
+        android:text="Already have an account? Log In"
         android:textColor="#FFFFFF"
-        android:textSize="16sp"
-        android:layout_marginTop="24dp" />
+        android:layout_marginTop="20dp" />
 
 </LinearLayout>
