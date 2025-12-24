@@ -1,6 +1,5 @@
 <?xml version="1.0" encoding="utf-8"?>
 <menu xmlns:android="http://schemas.android.com/apk/res/android">
-
     <item
         android:id="@+id/nav_home"
         android:icon="@android:drawable/ic_menu_today"
@@ -8,8 +7,9 @@
 
     <item
         android:id="@+id/nav_quick_match"
-        android:icon="@android:drawable/ic_menu_compass"
-        android:title="Quick Match" />
+        android:icon="@drawable/play"
+        android:iconTint="@null"
+        android:title="Play" />
 
     <item
         android:id="@+id/nav_profile"

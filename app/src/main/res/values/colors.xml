@@ -4,4 +4,6 @@
     <color name="white">#FFFFFFFF</color>
     <color name="darkBackground">#121212</color>
     <color name="accentColor">#FF4081</color>
+    <color name="nav_selected">#FFD600</color>
+    <color name="nav_unselected">#FFFFFF</color>
 </resources>
