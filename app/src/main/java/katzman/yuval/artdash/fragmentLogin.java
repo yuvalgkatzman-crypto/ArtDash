@@ -20,7 +20,7 @@ public class fragmentLogin extends Fragment {
 
     private EditText etEmail, etPassword;
     private Button btnLogin;
-    private TextView tvGoToRegister;
+    private TextView tvGoToRegister, tvForgotPassword;
     private FirebaseAuth mAuth;
 
     @Nullable
@@ -34,12 +34,22 @@ public class fragmentLogin extends Fragment {
         etPassword = view.findViewById(R.id.etPassword);
         btnLogin = view.findViewById(R.id.btnLogin);
         tvGoToRegister = view.findViewById(R.id.tvGoToRegister);
+        tvForgotPassword = view.findViewById(R.id.tvForgotPassword);
 
 
         tvGoToRegister.setOnClickListener(v -> {
             if (isAdded() && getActivity() != null) {
                 getActivity().getSupportFragmentManager().beginTransaction()
-                        .replace(R.id.authFragmentContainer, new RegisterFragment()) // וודאי שה-ID הזה קיים ב-Activity
+                        .replace(R.id.authFragmentContainer, new RegisterFragment())
+                        .addToBackStack(null)
+                        .commit();
+            }
+        });
+
+        tvForgotPassword.setOnClickListener(v -> {
+            if (isAdded() && getActivity() != null) {
+                getActivity().getSupportFragmentManager().beginTransaction()
+                        .replace(R.id.authFragmentContainer, new ForgotPasswordFragment())
                         .addToBackStack(null)
                         .commit();
             }
@@ -76,5 +86,6 @@ public class fragmentLogin extends Fragment {
         });
 
         return view;
+
     }
 }
