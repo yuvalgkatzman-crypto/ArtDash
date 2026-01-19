@@ -23,9 +23,14 @@ public class fragmentLogin extends Fragment {
     private TextView tvGoToRegister, tvForgotPassword;
     private FirebaseAuth mAuth;
 
+    public fragmentLogin() {
+        // Required empty public constructor
+    }
+
     @Nullable
     @Override
     public View onCreateView(@NonNull LayoutInflater inflater, @Nullable ViewGroup container, @Nullable Bundle savedInstanceState) {
+
         View view = inflater.inflate(R.layout.fragment_login, container, false);
 
         mAuth = FirebaseAuth.getInstance();
@@ -38,7 +43,7 @@ public class fragmentLogin extends Fragment {
 
 
         tvGoToRegister.setOnClickListener(v -> {
-            if (isAdded() && getActivity() != null) {
+            if (getActivity() != null) {
                 getActivity().getSupportFragmentManager().beginTransaction()
                         .replace(R.id.authFragmentContainer, new RegisterFragment())
                         .addToBackStack(null)
@@ -46,8 +51,9 @@ public class fragmentLogin extends Fragment {
             }
         });
 
+      
         tvForgotPassword.setOnClickListener(v -> {
-            if (isAdded() && getActivity() != null) {
+            if (getActivity() != null) {
                 getActivity().getSupportFragmentManager().beginTransaction()
                         .replace(R.id.authFragmentContainer, new ForgotPasswordFragment())
                         .addToBackStack(null)
@@ -56,36 +62,40 @@ public class fragmentLogin extends Fragment {
         });
 
         btnLogin.setOnClickListener(v -> {
-            String email = etEmail.getText().toString().trim();
-            String password = etPassword.getText().toString().trim();
-
-            if (email.isEmpty()) {
-                etEmail.setError("Email is required");
-                etEmail.requestFocus();
-                return;
-            }
-
-            if (password.isEmpty()) {
-                etPassword.setError("Password is required");
-                etPassword.requestFocus();
-                return;
-            }
-
-            mAuth.signInWithEmailAndPassword(email, password)
-                    .addOnCompleteListener(task -> {
-                        if (task.isSuccessful()) {
-                            Toast.makeText(getContext(), "Welcome back!", Toast.LENGTH_SHORT).show();
-                            Intent intent = new Intent(getActivity(), MainActivity.class);
-                            startActivity(intent);
-                            getActivity().finish();
-                        } else {
-                            String errorMessage = task.getException().getMessage();
-                            Toast.makeText(getContext(), "Login Failed: " + errorMessage, Toast.LENGTH_LONG).show();
-                        }
-                    });
+            loginUser();
         });
 
         return view;
+    }
 
+    private void loginUser() {
+        String email = etEmail.getText().toString().trim();
+        String password = etPassword.getText().toString().trim();
+
+        if (email.isEmpty()) {
+            etEmail.setError("Email is required");
+            etEmail.requestFocus();
+            return;
+        }
+
+        if (password.isEmpty()) {
+            etPassword.setError("Password is required");
+            etPassword.requestFocus();
+            return;
+        }
+
+        mAuth.signInWithEmailAndPassword(email, password)
+                .addOnCompleteListener(task -> {
+                    if (isAdded() && getActivity() != null) {
+                        if (task.isSuccessful()) {
+                            Toast.makeText(getContext(), "Welcome back!", Toast.LENGTH_SHORT).show();
+                            startActivity(new Intent(getActivity(), MainActivity.class));
+                            getActivity().finish();
+                        } else {
+                            String errorMessage = task.getException() != null ? task.getException().getMessage() : "Unknown error";
+                            Toast.makeText(getContext(), "Login Failed: " + errorMessage, Toast.LENGTH_LONG).show();
+                        }
+                    }
+                });
     }
 }
