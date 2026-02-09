@@ -8,14 +8,18 @@ import android.view.animation.Animation;
 import android.view.animation.AnimationUtils;
 import android.widget.Button;
 import android.widget.ImageView;
+import android.widget.Toast;
+
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.fragment.app.Fragment;
+
 import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.firestore.DocumentReference;
 import com.google.firebase.firestore.FieldValue;
 import com.google.firebase.firestore.FirebaseFirestore;
 import com.google.firebase.firestore.ListenerRegistration;
+
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
@@ -26,10 +30,11 @@ public class QuickMatchFragment extends Fragment {
     private ImageView ivMatchIcon;
     private Button btnStartMatch;
     private boolean isSearching = false;
-    private FirebaseFirestore db = FirebaseFirestore.getInstance();
+    private final FirebaseFirestore db = FirebaseFirestore.getInstance();
     private String currentUserId;
     private String currentRoomId = null;
     private ListenerRegistration roomListener;
+    private static final int MAX_PLAYERS = 6;
 
     @Nullable
     @Override
@@ -40,6 +45,8 @@ public class QuickMatchFragment extends Fragment {
 
         if (FirebaseAuth.getInstance().getCurrentUser() != null) {
             currentUserId = FirebaseAuth.getInstance().getCurrentUser().getUid();
+        } else {
+            Toast.makeText(getContext(), "User not logged in", Toast.LENGTH_SHORT).show();
         }
 
         btnStartMatch.setOnClickListener(v -> {
@@ -52,9 +59,10 @@ public class QuickMatchFragment extends Fragment {
 
     private void startSearch() {
         isSearching = true;
-        btnStartMatch.setText("SEARCHING (1/6)");
+        btnStartMatch.setText("SEARCHING (1/" + MAX_PLAYERS + ")");
         Animation rotate = AnimationUtils.loadAnimation(getContext(), R.anim.rotate_match);
         ivMatchIcon.startAnimation(rotate);
+
 
         db.collection("rooms")
                 .whereEqualTo("status", "waiting")
@@ -73,6 +81,7 @@ public class QuickMatchFragment extends Fragment {
     private void createNewRoom() {
         List<String> players = new ArrayList<>();
         players.add(currentUserId);
+
         Map<String, Object> room = new HashMap<>();
         room.put("players", players);
         room.put("status", "waiting");
@@ -82,24 +91,42 @@ public class QuickMatchFragment extends Fragment {
                 .addOnSuccessListener(docRef -> {
                     currentRoomId = docRef.getId();
                     listenToRoom(currentRoomId);
-                });
+                })
+                .addOnFailureListener(e -> stopSearch());
     }
 
     private void joinRoom(String roomId) {
         currentRoomId = roomId;
+
         db.collection("rooms").document(roomId)
                 .update("players", FieldValue.arrayUnion(currentUserId))
-                .addOnSuccessListener(aVoid -> listenToRoom(roomId));
+                .addOnSuccessListener(aVoid -> listenToRoom(roomId))
+                .addOnFailureListener(e -> {
+
+                    startSearch();
+                });
     }
 
     private void listenToRoom(String roomId) {
         roomListener = db.collection("rooms").document(roomId)
                 .addSnapshotListener((snapshot, e) -> {
                     if (e != null || snapshot == null || !snapshot.exists()) return;
+
                     List<String> players = (List<String>) snapshot.get("players");
+                    String status = snapshot.getString("status");
                     int count = (players != null) ? players.size() : 0;
-                    btnStartMatch.setText("SEARCHING (" + count + "/6)");
-                    if (count >= 6) matchFound();
+
+                    btnStartMatch.setText("SEARCHING (" + count + "/" + MAX_PLAYERS + ")");
+
+
+                    if ("started".equals(status)) {
+                        matchFound();
+                    } else if (count >= MAX_PLAYERS) {
+
+                        db.collection("rooms").document(roomId)
+                                .update("status", "started");
+                        matchFound();
+                    }
                 });
     }
 
@@ -107,30 +134,47 @@ public class QuickMatchFragment extends Fragment {
         isSearching = false;
         btnStartMatch.setText("FIND A MATCH");
         ivMatchIcon.clearAnimation();
-        if (roomListener != null) roomListener.remove();
+
+        if (roomListener != null) {
+            roomListener.remove();
+            roomListener = null;
+        }
+
         if (currentRoomId != null) {
+
             db.collection("rooms").document(currentRoomId)
                     .update("players", FieldValue.arrayRemove(currentUserId));
+            currentRoomId = null;
         }
     }
 
     private void matchFound() {
-        if (roomListener != null) roomListener.remove();
+        if (roomListener != null) {
+            roomListener.remove();
+            roomListener = null;
+        }
         isSearching = false;
+
 
         PaintFragment paintFragment = new PaintFragment();
         Bundle args = new Bundle();
         args.putString("roomId", currentRoomId);
         paintFragment.setArguments(args);
 
-        getParentFragmentManager().beginTransaction()
-                .replace(R.id.mainFragmentContainer, paintFragment)
-                .commit();
+        if (getActivity() != null) {
+            getParentFragmentManager().beginTransaction()
+                    .replace(R.id.mainFragmentContainer, paintFragment)
+                    .addToBackStack(null)
+                    .commit();
+        }
     }
 
     @Override
     public void onDestroyView() {
+
+        if (isSearching) {
+            stopSearch();
+        }
         super.onDestroyView();
-        if (isSearching) stopSearch();
     }
 }
