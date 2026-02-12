@@ -1,17 +1,18 @@
 package katzman.yuval.artdash;
 
+import android.content.res.ColorStateList;
 import android.graphics.Color;
 import android.os.Bundle;
 import android.os.CountDownTimer;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.SeekBar; // הוספנו את זה
 import android.widget.TextView;
 import android.widget.Toast;
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.fragment.app.Fragment;
-import com.google.android.material.bottomnavigation.BottomNavigationView;
 import com.google.firebase.firestore.FirebaseFirestore;
 import java.util.Locale;
 import yuku.ambilwarna.AmbilWarnaDialog;
@@ -29,7 +30,6 @@ public class PaintFragment extends Fragment {
     public View onCreateView(@NonNull LayoutInflater inflater, @Nullable ViewGroup container, @Nullable Bundle savedInstanceState) {
         View view = inflater.inflate(R.layout.fragment_paint, container, false);
 
-
         toggleBottomNavigation(false);
 
         drawingView = view.findViewById(R.id.drawingView);
@@ -40,7 +40,6 @@ public class PaintFragment extends Fragment {
             roomId = getArguments().getString("roomId");
             loadGameData();
         } else {
-
             tvTopic.setText("Draw: Something Creative");
         }
 
@@ -49,10 +48,8 @@ public class PaintFragment extends Fragment {
         return view;
     }
 
-
     private void toggleBottomNavigation(boolean show) {
         if (getActivity() != null) {
-
             View nav = getActivity().findViewById(R.id.bottomNavigation);
             if (nav != null) {
                 nav.setVisibility(show ? View.VISIBLE : View.GONE);
@@ -66,14 +63,37 @@ public class PaintFragment extends Fragment {
         db.collection("rooms").document(roomId).get().addOnSuccessListener(doc -> {
             if (doc.exists()) {
                 String topic = doc.getString("topic");
-                tvTopic.setText("Draw: " + (topic != null ? topic : "Something Creative"));
-                startMatchTimer();
+                tvTopic.setText(topic != null ? topic : "Something Creative");
+
+                com.google.firebase.Timestamp startTime = doc.getTimestamp("startTime");
+                if (startTime != null) {
+                    calculateAndStartTimer(startTime);
+                } else {
+                    startMatchTimer(180000);
+                }
             }
         });
     }
 
-    private void startMatchTimer() {
-        gameTimer = new CountDownTimer(180000, 1000) {
+    private void calculateAndStartTimer(com.google.firebase.Timestamp startTime) {
+        long now = System.currentTimeMillis();
+        long startMillis = startTime.toDate().getTime();
+        long totalGameTime = 180000;
+
+        long elapsed = now - startMillis;
+        long remaining = totalGameTime - elapsed;
+
+        if (remaining > 0) {
+            startMatchTimer(remaining);
+        } else {
+            onTimeIsUp();
+        }
+    }
+
+    private void startMatchTimer(long timeInMillis) {
+        if (gameTimer != null) gameTimer.cancel();
+
+        gameTimer = new CountDownTimer(timeInMillis, 1000) {
             @Override
             public void onTick(long millisUntilFinished) {
                 int minutes = (int) (millisUntilFinished / 1000) / 60;
@@ -94,10 +114,33 @@ public class PaintFragment extends Fragment {
     }
 
     private void setupActionButtons(View v) {
+        // ביטול פעולה
         v.findViewById(R.id.btnUndo).setOnClickListener(view -> drawingView.undo());
+
+        // מעבר למצב מחק
         v.findViewById(R.id.btnEraser).setOnClickListener(view -> drawingView.setEraserMode(true));
+
+        // ניקוי כל הקנבס
         v.findViewById(R.id.btnClear).setOnClickListener(view -> drawingView.clear());
+
+        // פתיחת דיאלוג בחירת צבע
         v.findViewById(R.id.btnColorWheel).setOnClickListener(view -> openColorPickerDialog());
+
+        // הגדרת ה-SeekBar לשליטה בעובי המכחול
+        SeekBar sbBrushSize = v.findViewById(R.id.sbBrushSize);
+        sbBrushSize.setOnSeekBarChangeListener(new SeekBar.OnSeekBarChangeListener() {
+            @Override
+            public void onProgressChanged(SeekBar seekBar, int progress, boolean fromUser) {
+
+                drawingView.setStrokeWidth(progress + 5f);
+            }
+
+            @Override
+            public void onStartTrackingTouch(SeekBar seekBar) {}
+
+            @Override
+            public void onStopTrackingTouch(SeekBar seekBar) {}
+        });
     }
 
     private void openColorPickerDialog() {
@@ -108,9 +151,10 @@ public class PaintFragment extends Fragment {
             @Override
             public void onOk(AmbilWarnaDialog dialog, int color) {
                 drawingView.setColor(color);
+                // מעדכנים את צבע כפתור בחירת הצבע כדי שהמשתמש יראה מה הוא בחר
                 View colorButton = getView().findViewById(R.id.btnColorWheel);
                 if (colorButton != null) {
-                    colorButton.setBackgroundTintList(android.content.res.ColorStateList.valueOf(color));
+                    colorButton.setBackgroundTintList(ColorStateList.valueOf(color));
                 }
             }
         });
@@ -124,13 +168,12 @@ public class PaintFragment extends Fragment {
     }
 
     private void saveDrawingToCloud() {
-        // לוגיקה עתידית
+
     }
 
     @Override
     public void onDestroyView() {
         super.onDestroyView();
-
         toggleBottomNavigation(true);
         if (gameTimer != null) {
             gameTimer.cancel();

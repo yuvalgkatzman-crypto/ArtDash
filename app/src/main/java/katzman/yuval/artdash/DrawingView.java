@@ -20,7 +20,7 @@ public class DrawingView extends View {
     private ArrayList<Paint> undonePaints = new ArrayList<>();
 
     private int currentColor = Color.BLACK;
-    private float currentStrokeWidth = 10f;
+    private float currentStrokeWidth = 10f; // עובי ברירת מחדל
     private boolean isEraserMode = false;
 
     public DrawingView(Context context, AttributeSet attrs) {
@@ -42,10 +42,8 @@ public class DrawingView extends View {
         drawPaint.setStrokeJoin(Paint.Join.ROUND);
         drawPaint.setStrokeCap(Paint.Cap.ROUND);
 
-        // אם אנחנו במצב מחק, אנחנו משתמשים ב-Xfermode כדי "לחתוך" את הציור (או פשוט צבע לבן כברירת מחדל)
         if (isEraserMode) {
             drawPaint.setColor(Color.WHITE);
-            drawPaint.setStrokeWidth(currentStrokeWidth * 2); // מחק בדרך כלל עבה יותר
         }
     }
 
@@ -80,43 +78,27 @@ public class DrawingView extends View {
         return true;
     }
 
-    // שינוי צבע מקוד String (למשל "#FFFFFF")
-    public void setColor(String colorCode) {
-        isEraserMode = false;
-        currentColor = Color.parseColor(colorCode);
-        setupPaint();
+    // --- הפונקציה החדשה שחיכינו לה! ---
+    public void setStrokeWidth(float newWidth) {
+        currentStrokeWidth = newWidth;
+        setupPaint(); // מעדכן את המכחול הנוכחי
     }
 
-    // שינוי צבע ישירות מ-int (בשביל ה-Color Picker)
     public void setColor(int color) {
-        isEraserMode = false;
+        isEraserMode = false; // ברגע שבוחרים צבע, המחק מתבטל
         this.currentColor = color;
         setupPaint();
     }
 
     public void setEraserMode(boolean enabled) {
-        if (enabled) {
-            currentColor = Color.WHITE;
-            drawPaint.setStrokeWidth(currentStrokeWidth * 3);
-        } else {
-
-            currentColor = Color.BLACK;
-            drawPaint.setStrokeWidth(currentStrokeWidth);
-        }
+        isEraserMode = enabled;
         setupPaint();
     }
+
     public void undo() {
         if (paths.size() > 0) {
             undonePaths.add(paths.remove(paths.size() - 1));
             undonePaints.add(paints.remove(paints.size() - 1));
-            invalidate();
-        }
-    }
-
-    public void redo() {
-        if (undonePaths.size() > 0) {
-            paths.add(undonePaths.remove(undonePaths.size() - 1));
-            paints.add(undonePaints.remove(undonePaints.size() - 1));
             invalidate();
         }
     }

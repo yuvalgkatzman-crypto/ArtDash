@@ -15,9 +15,6 @@ public class MainActivity extends AppCompatActivity {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
 
-        // הפעלת הפונקציה שמעלה את המילים ל-Firebase
-        // זכרי: אחרי הרצה אחת ולוודא שהמילים עלו, תמחקי את השורה הזו
-        uploadAllTopics();
 
         BottomNavigationView bottomNav = findViewById(R.id.bottomNavigation);
 
@@ -49,25 +46,4 @@ public class MainActivity extends AppCompatActivity {
         });
     }
 
-    private void uploadAllTopics() {
-        FirebaseFirestore db = FirebaseFirestore.getInstance();
-
-        String[] topics = {
-                "Lion with a Crown", "Elephant on a Bicycle", "Cat in a Box", "Penguin with a Scarf",
-                "Giraffe with a Tie", "Octopus playing Guitar", "Polar Bear eating Ice Cream",
-                "Pizza with Extra Cheese", "Giant Hamburger", "Colorful Sushi", "Space Rocket to the Moon",
-                "Astronaut Floating", "Small Green Alien", "Fire Breathing Dragon", "The Eiffel Tower",
-                "Pirate Ship at Sea", "Old Phone with a Dial", "Electric Guitar", "Cool Sneakers",
-                "Alarm Clock", "Colorful Umbrella", "Red Race Car", "Hot Air Balloon",
-                "Banana slipping on its Peel", "Sun with Sunglasses", "Cloud crying Rain",
-                "Magic Wand", "Treasure Chest", "Dancing Flower", "Moon with a Nightcap"
-        };
-
-        for (String topicName : topics) {
-            Map<String, Object> topicData = new HashMap<>();
-            topicData.put("name", topicName);
-
-            db.collection("topics").add(topicData);
-        }
-    }
 }
