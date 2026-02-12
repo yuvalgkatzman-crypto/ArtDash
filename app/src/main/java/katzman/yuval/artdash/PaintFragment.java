@@ -1,5 +1,6 @@
 package katzman.yuval.artdash;
 
+import android.graphics.Color;
 import android.os.Bundle;
 import android.os.CountDownTimer;
 import android.view.LayoutInflater;
@@ -10,9 +11,10 @@ import android.widget.Toast;
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.fragment.app.Fragment;
+import com.google.android.material.bottomnavigation.BottomNavigationView;
 import com.google.firebase.firestore.FirebaseFirestore;
 import java.util.Locale;
-import java.util.Random;
+import yuku.ambilwarna.AmbilWarnaDialog;
 
 public class PaintFragment extends Fragment {
 
@@ -20,10 +22,7 @@ public class PaintFragment extends Fragment {
     private TextView tvTimer, tvTopic;
     private String roomId;
     private FirebaseFirestore db = FirebaseFirestore.getInstance();
-    private CountDownTimer countDownTimer;
-
-
-    private String[] topics = {"Apple", "House", "Rocket", "Cat", "Sun", "Car", "Pizza"};
+    private CountDownTimer gameTimer;
 
     @Nullable
     @Override
@@ -31,73 +30,110 @@ public class PaintFragment extends Fragment {
         View view = inflater.inflate(R.layout.fragment_paint, container, false);
 
 
+        toggleBottomNavigation(false);
+
         drawingView = view.findViewById(R.id.drawingView);
         tvTimer = view.findViewById(R.id.tvTimer);
         tvTopic = view.findViewById(R.id.tvTopic);
 
-
         if (getArguments() != null) {
             roomId = getArguments().getString("roomId");
+            loadGameData();
+        } else {
+
+            tvTopic.setText("Draw: Something Creative");
         }
 
-        setupButtons(view);
-        startMatchLogic();
+        setupActionButtons(view);
 
         return view;
     }
 
-    private void setupButtons(View v) {
-        v.findViewById(R.id.btnUndo).setOnClickListener(view -> drawingView.undo());
-        v.findViewById(R.id.btnRedo).setOnClickListener(view -> drawingView.redo());
-        v.findViewById(R.id.btnClear).setOnClickListener(view -> drawingView.clearAll());
-        v.findViewById(R.id.btnEraser).setOnClickListener(view -> drawingView.setEraser());
 
+    private void toggleBottomNavigation(boolean show) {
+        if (getActivity() != null) {
 
-        v.findViewById(R.id.colorBlack).setOnClickListener(view -> drawingView.setColor("#000000"));
-        v.findViewById(R.id.colorRed).setOnClickListener(view -> drawingView.setColor("#FF0000"));
-        v.findViewById(R.id.colorBlue).setOnClickListener(view -> drawingView.setColor("#0000FF"));
-        v.findViewById(R.id.colorGreen).setOnClickListener(view -> drawingView.setColor("#4CAF50"));
-        v.findViewById(R.id.colorYellow).setOnClickListener(view -> drawingView.setColor("#FFEB3B"));
+            View nav = getActivity().findViewById(R.id.bottomNavigation);
+            if (nav != null) {
+                nav.setVisibility(show ? View.VISIBLE : View.GONE);
+            }
+        }
     }
 
-    private void startMatchLogic() {
+    private void loadGameData() {
+        if (roomId == null) return;
 
-        String randomTopic = topics[new Random().nextInt(topics.length)];
-        tvTopic.setText("Draw: " + randomTopic);
+        db.collection("rooms").document(roomId).get().addOnSuccessListener(doc -> {
+            if (doc.exists()) {
+                String topic = doc.getString("topic");
+                tvTopic.setText("Draw: " + (topic != null ? topic : "Something Creative"));
+                startMatchTimer();
+            }
+        });
+    }
 
-
-        countDownTimer = new CountDownTimer(90000, 1000) {
+    private void startMatchTimer() {
+        gameTimer = new CountDownTimer(180000, 1000) {
             @Override
             public void onTick(long millisUntilFinished) {
-                int seconds = (int) (millisUntilFinished / 1000);
-                int minutes = seconds / 60;
-                seconds = seconds % 60;
+                int minutes = (int) (millisUntilFinished / 1000) / 60;
+                int seconds = (int) (millisUntilFinished / 1000) % 60;
                 tvTimer.setText(String.format(Locale.getDefault(), "%02d:%02d", minutes, seconds));
 
-
                 if (millisUntilFinished < 10000) {
-                    tvTimer.setTextColor(getResources().getColor(android.R.color.holo_red_dark));
+                    tvTimer.setTextColor(Color.RED);
                 }
             }
 
             @Override
             public void onFinish() {
                 tvTimer.setText("00:00");
-                finishDrawing();
+                onTimeIsUp();
             }
         }.start();
     }
 
-    private void finishDrawing() {
-        Toast.makeText(getContext(), "Time's up! Submitting...", Toast.LENGTH_LONG).show();
+    private void setupActionButtons(View v) {
+        v.findViewById(R.id.btnUndo).setOnClickListener(view -> drawingView.undo());
+        v.findViewById(R.id.btnEraser).setOnClickListener(view -> drawingView.setEraserMode(true));
+        v.findViewById(R.id.btnClear).setOnClickListener(view -> drawingView.clear());
+        v.findViewById(R.id.btnColorWheel).setOnClickListener(view -> openColorPickerDialog());
+    }
 
+    private void openColorPickerDialog() {
+        AmbilWarnaDialog colorPicker = new AmbilWarnaDialog(getContext(), Color.BLACK, new AmbilWarnaDialog.OnAmbilWarnaListener() {
+            @Override
+            public void onCancel(AmbilWarnaDialog dialog) {}
+
+            @Override
+            public void onOk(AmbilWarnaDialog dialog, int color) {
+                drawingView.setColor(color);
+                View colorButton = getView().findViewById(R.id.btnColorWheel);
+                if (colorButton != null) {
+                    colorButton.setBackgroundTintList(android.content.res.ColorStateList.valueOf(color));
+                }
+            }
+        });
+        colorPicker.show();
+    }
+
+    private void onTimeIsUp() {
+        drawingView.setEnabled(false);
+        saveDrawingToCloud();
+        Toast.makeText(getContext(), "Time's up! Submitting...", Toast.LENGTH_LONG).show();
+    }
+
+    private void saveDrawingToCloud() {
+        // לוגיקה עתידית
     }
 
     @Override
-    public void onDestroy() {
-        super.onDestroy();
-        if (countDownTimer != null) {
-            countDownTimer.cancel();
+    public void onDestroyView() {
+        super.onDestroyView();
+
+        toggleBottomNavigation(true);
+        if (gameTimer != null) {
+            gameTimer.cancel();
         }
     }
 }

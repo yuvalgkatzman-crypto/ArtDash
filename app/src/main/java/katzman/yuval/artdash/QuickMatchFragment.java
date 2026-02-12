@@ -15,7 +15,7 @@ import androidx.annotation.Nullable;
 import androidx.fragment.app.Fragment;
 
 import com.google.firebase.auth.FirebaseAuth;
-import com.google.firebase.firestore.DocumentReference;
+import com.google.firebase.firestore.DocumentSnapshot;
 import com.google.firebase.firestore.FieldValue;
 import com.google.firebase.firestore.FirebaseFirestore;
 import com.google.firebase.firestore.ListenerRegistration;
@@ -24,6 +24,7 @@ import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.Random;
 
 public class QuickMatchFragment extends Fragment {
 
@@ -34,7 +35,7 @@ public class QuickMatchFragment extends Fragment {
     private String currentUserId;
     private String currentRoomId = null;
     private ListenerRegistration roomListener;
-    private static final int MAX_PLAYERS = 6;
+    private static final int MAX_PLAYERS = 1;
 
     @Nullable
     @Override
@@ -46,7 +47,8 @@ public class QuickMatchFragment extends Fragment {
         if (FirebaseAuth.getInstance().getCurrentUser() != null) {
             currentUserId = FirebaseAuth.getInstance().getCurrentUser().getUid();
         } else {
-            Toast.makeText(getContext(), "User not logged in", Toast.LENGTH_SHORT).show();
+
+            currentUserId = "TempUser_" + System.currentTimeMillis();
         }
 
         btnStartMatch.setOnClickListener(v -> {
@@ -59,10 +61,9 @@ public class QuickMatchFragment extends Fragment {
 
     private void startSearch() {
         isSearching = true;
-        btnStartMatch.setText("SEARCHING (1/" + MAX_PLAYERS + ")");
+        btnStartMatch.setText("SEARCHING...");
         Animation rotate = AnimationUtils.loadAnimation(getContext(), R.anim.rotate_match);
         ivMatchIcon.startAnimation(rotate);
-
 
         db.collection("rooms")
                 .whereEqualTo("status", "waiting")
@@ -72,19 +73,40 @@ public class QuickMatchFragment extends Fragment {
                     if (!queryDocumentSnapshots.isEmpty()) {
                         joinRoom(queryDocumentSnapshots.getDocuments().get(0).getId());
                     } else {
-                        createNewRoom();
+
+                        fetchTopicAndCreateRoom();
                     }
                 })
                 .addOnFailureListener(e -> stopSearch());
     }
 
-    private void createNewRoom() {
+    private void fetchTopicAndCreateRoom() {
+
+        db.collection("topics").get().addOnSuccessListener(queryDocumentSnapshots -> {
+            List<String> topicsList = new ArrayList<>();
+            for (DocumentSnapshot doc : queryDocumentSnapshots) {
+                String name = doc.getString("name");
+                if (name != null) topicsList.add(name);
+            }
+
+
+            String selectedTopic = "Funny Animal";
+            if (!topicsList.isEmpty()) {
+                selectedTopic = topicsList.get(new Random().nextInt(topicsList.size()));
+            }
+
+            createNewRoom(selectedTopic);
+        }).addOnFailureListener(e -> createNewRoom("Creative Drawing"));
+    }
+
+    private void createNewRoom(String topic) {
         List<String> players = new ArrayList<>();
         players.add(currentUserId);
 
         Map<String, Object> room = new HashMap<>();
         room.put("players", players);
         room.put("status", "waiting");
+        room.put("topic", topic);
         room.put("createdAt", FieldValue.serverTimestamp());
 
         db.collection("rooms").add(room)
@@ -97,14 +119,10 @@ public class QuickMatchFragment extends Fragment {
 
     private void joinRoom(String roomId) {
         currentRoomId = roomId;
-
         db.collection("rooms").document(roomId)
                 .update("players", FieldValue.arrayUnion(currentUserId))
                 .addOnSuccessListener(aVoid -> listenToRoom(roomId))
-                .addOnFailureListener(e -> {
-
-                    startSearch();
-                });
+                .addOnFailureListener(e -> startSearch());
     }
 
     private void listenToRoom(String roomId) {
@@ -118,11 +136,9 @@ public class QuickMatchFragment extends Fragment {
 
                     btnStartMatch.setText("SEARCHING (" + count + "/" + MAX_PLAYERS + ")");
 
-
                     if ("started".equals(status)) {
                         matchFound();
                     } else if (count >= MAX_PLAYERS) {
-
                         db.collection("rooms").document(roomId)
                                 .update("status", "started");
                         matchFound();
@@ -141,7 +157,6 @@ public class QuickMatchFragment extends Fragment {
         }
 
         if (currentRoomId != null) {
-
             db.collection("rooms").document(currentRoomId)
                     .update("players", FieldValue.arrayRemove(currentUserId));
             currentRoomId = null;
@@ -154,7 +169,6 @@ public class QuickMatchFragment extends Fragment {
             roomListener = null;
         }
         isSearching = false;
-
 
         PaintFragment paintFragment = new PaintFragment();
         Bundle args = new Bundle();
@@ -171,7 +185,6 @@ public class QuickMatchFragment extends Fragment {
 
     @Override
     public void onDestroyView() {
-
         if (isSearching) {
             stopSearch();
         }

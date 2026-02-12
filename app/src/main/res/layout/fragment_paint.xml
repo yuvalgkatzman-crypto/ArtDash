@@ -4,50 +4,62 @@
     xmlns:app="http://schemas.android.com/apk/res-auto"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    android:background="@drawable/gradient_background"> <LinearLayout
-    android:id="@+id/topBar"
-    android:layout_width="match_parent"
-    android:layout_height="wrap_content"
-    android:background="@drawable/nav_bg"
-    android:backgroundTint="#2A1F4D"
-    android:elevation="8dp"
-    android:orientation="horizontal"
-    android:padding="16dp"
-    android:layout_margin="12dp"
-    app:layout_constraintTop_toTopOf="parent">
-
-    <TextView
-        android:id="@+id/tvTimer"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:text="01:30"
-        android:textColor="#FFD600"
-        android:textSize="22sp"
-        android:textStyle="bold" />
-
-    <TextView
-        android:id="@+id/tvTopic"
-        android:layout_width="0dp"
-        android:layout_height="wrap_content"
-        android:layout_weight="1"
-        android:gravity="center"
-        android:text="DRAW: A ROCKET"
-        android:textColor="#FFFFFF"
-        android:textSize="18sp"
-        android:textStyle="bold" />
-</LinearLayout>
+    android:background="@drawable/gradient_background"
+    android:clickable="true"
+    android:focusable="true">
 
     <androidx.cardview.widget.CardView
-        android:id="@+id/cvDrawingContainer"
+        android:id="@+id/headerCard"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_margin="16dp"
+        app:cardBackgroundColor="#2A1F4D"
+        app:cardCornerRadius="15dp"
+        app:layout_constraintTop_toTopOf="parent">
+
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:orientation="horizontal"
+            android:padding="15dp"
+            android:gravity="center">
+
+            <TextView
+                android:id="@+id/tvTimer"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="03:00"
+                android:textColor="#FFD600"
+                android:textSize="24sp"
+                android:textStyle="bold" />
+
+            <View
+                android:layout_width="2dp"
+                android:layout_height="match_parent"
+                android:layout_marginHorizontal="15dp"
+                android:background="#4E3B81" />
+
+            <TextView
+                android:id="@+id/tvTopic"
+                android:layout_width="0dp"
+                android:layout_height="wrap_content"
+                android:layout_weight="1"
+                android:text="Loading..."
+                android:textColor="#FFFFFF"
+                android:textSize="18sp" />
+        </LinearLayout>
+    </androidx.cardview.widget.CardView>
+
+    <androidx.cardview.widget.CardView
+        android:id="@+id/canvasCard"
         android:layout_width="0dp"
         android:layout_height="0dp"
         android:layout_margin="16dp"
-        app:cardCornerRadius="20dp"
-        app:cardElevation="10dp"
-        app:layout_constraintBottom_toTopOf="@+id/controlsLayout"
+        app:cardCornerRadius="25dp"
+        app:layout_constraintBottom_toTopOf="@+id/bottomToolsCard"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toBottomOf="@id/topBar">
+        app:layout_constraintTop_toBottomOf="@id/headerCard">
 
         <katzman.yuval.artdash.DrawingView
             android:id="@+id/drawingView"
@@ -56,100 +68,62 @@
             android:background="#FFFFFF" />
     </androidx.cardview.widget.CardView>
 
-    <LinearLayout
-        android:id="@+id/controlsLayout"
+    <androidx.cardview.widget.CardView
+        android:id="@+id/bottomToolsCard"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:orientation="vertical"
-        android:background="@drawable/nav_bg"
-        android:backgroundTint="#2A1F4D"
-        android:padding="12dp"
-        android:layout_marginHorizontal="12dp"
-        android:layout_marginBottom="80dp"
+        android:layout_margin="16dp"
+        app:cardBackgroundColor="#2A1F4D"
+        app:cardCornerRadius="20dp"
         app:layout_constraintBottom_toBottomOf="parent">
 
         <LinearLayout
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:gravity="center"
-            android:orientation="horizontal">
-
-            <ImageButton
-                android:id="@+id/btnUndo"
-                android:layout_width="51dp"
-                android:layout_height="55dp"
-                android:background="?attr/selectableItemBackgroundBorderless"
-                android:contentDescription="undo"
-
-                android:src="@android:drawable/ic_menu_revert"
-
-                app:tint="#FFD600" />
-
-            <ImageButton
-                android:id="@+id/btnRedo"
-                android:layout_width="57dp"
-                android:layout_height="55dp"
-                android:background="?attr/selectableItemBackgroundBorderless"
-                android:scaleX="-1"
-                android:contentDescription="redo"
-                android:src="@android:drawable/ic_menu_revert"
-                app:tint="#FFD600" />
-
-            <androidx.appcompat.widget.AppCompatButton
-                android:id="@+id/btnEraser"
-                android:layout_width="102dp"
-                android:layout_height="55dp"
-                android:layout_marginHorizontal="8dp"
-                android:background="@drawable/nav_bg"
-                android:backgroundTint="#4E3B81"
-                android:text="Eraser"
-                android:textColor="#FFFFFF" />
-
-            <androidx.appcompat.widget.AppCompatButton
-                android:id="@+id/btnClear"
-                android:layout_width="wrap_content"
-                android:layout_height="55dp"
-                android:background="@drawable/nav_bg"
-                android:backgroundTint="#FF5722"
-                android:text="Clear"
-                android:textColor="#1A1230" />
-        </LinearLayout>
-
-        <HorizontalScrollView
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:layout_marginTop="12dp"
-            android:contentDescription="colors"
-            android:scrollbars="none">
+            android:orientation="vertical"
+            android:padding="12dp">
 
             <LinearLayout
-                android:layout_width="wrap_content"
+                android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:orientation="horizontal"
-                android:padding="4dp">
+                android:gravity="center"
+                android:orientation="horizontal">
 
                 <ImageButton
                     android:id="@+id/btnColorWheel"
-                    android:layout_width="74dp"
-                    android:layout_height="66dp"
-                    android:layout_margin="8dp"
-                    android:background="@drawable/palletelogo"
-                    android:contentDescription="colorwheel"
-                    app:tint="#FF0000" />
+                    android:layout_width="50dp"
+                    android:layout_height="50dp"
+                    android:src="@android:drawable/ic_menu_compass"
+                    android:backgroundTint="#FFD600" />
 
-                <View
-                    android:id="@+id/colorBlack"
-                    android:layout_width="45dp"
-                    android:layout_height="44dp"
-                    android:layout_margin="8dp"
-                    android:background="@drawable/circle_black" />
-                <View android:id="@+id/colorRed" android:layout_width="40dp" android:layout_height="40dp" android:layout_margin="8dp" android:background="@drawable/circle_red"/>
-                <View android:id="@+id/colorBlue" android:layout_width="40dp" android:layout_height="40dp" android:layout_margin="8dp" android:background="@drawable/circle_blue"/>
-                <View android:id="@+id/colorGreen" android:layout_width="40dp" android:layout_height="40dp" android:layout_margin="8dp" android:background="@drawable/circle_green"/>
-                <View android:id="@+id/colorYellow" android:layout_width="40dp" android:layout_height="40dp" android:layout_margin="8dp" android:background="@drawable/circle_yellow"/>
+                <androidx.appcompat.widget.AppCompatButton
+                    android:id="@+id/btnUndo"
+                    android:layout_width="wrap_content"
+                    android:layout_height="40dp"
+                    android:text="Undo"
+                    android:layout_marginStart="10dp"
+                    android:backgroundTint="#4E3B81"
+                    android:textColor="#FFF"/>
 
+                <androidx.appcompat.widget.AppCompatButton
+                    android:id="@+id/btnEraser"
+                    android:layout_width="wrap_content"
+                    android:layout_height="40dp"
+                    android:text="Eraser"
+                    android:layout_marginStart="10dp"
+                    android:backgroundTint="#4E3B81"
+                    android:textColor="#FFF"/>
+
+                <androidx.appcompat.widget.AppCompatButton
+                    android:id="@+id/btnClear"
+                    android:layout_width="wrap_content"
+                    android:layout_height="40dp"
+                    android:text="Clear"
+                    android:layout_marginStart="10dp"
+                    android:backgroundTint="#FF5722"
+                    android:textColor="#FFF"/>
             </LinearLayout>
-        </HorizontalScrollView>
-    </LinearLayout>
+        </LinearLayout>
+    </androidx.cardview.widget.CardView>
 
 </androidx.constraintlayout.widget.ConstraintLayout>

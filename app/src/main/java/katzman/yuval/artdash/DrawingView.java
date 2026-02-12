@@ -12,19 +12,16 @@ import java.util.ArrayList;
 
 public class DrawingView extends View {
 
-
     private Path drawPath;
-
     private Paint drawPaint;
-
     private ArrayList<Path> paths = new ArrayList<>();
     private ArrayList<Paint> paints = new ArrayList<>();
-  
     private ArrayList<Path> undonePaths = new ArrayList<>();
     private ArrayList<Paint> undonePaints = new ArrayList<>();
 
     private int currentColor = Color.BLACK;
     private float currentStrokeWidth = 10f;
+    private boolean isEraserMode = false;
 
     public DrawingView(Context context, AttributeSet attrs) {
         super(context, attrs);
@@ -44,15 +41,19 @@ public class DrawingView extends View {
         drawPaint.setStyle(Paint.Style.STROKE);
         drawPaint.setStrokeJoin(Paint.Join.ROUND);
         drawPaint.setStrokeCap(Paint.Cap.ROUND);
+
+        // אם אנחנו במצב מחק, אנחנו משתמשים ב-Xfermode כדי "לחתוך" את הציור (או פשוט צבע לבן כברירת מחדל)
+        if (isEraserMode) {
+            drawPaint.setColor(Color.WHITE);
+            drawPaint.setStrokeWidth(currentStrokeWidth * 2); // מחק בדרך כלל עבה יותר
+        }
     }
 
     @Override
     protected void onDraw(Canvas canvas) {
-
         for (int i = 0; i < paths.size(); i++) {
             canvas.drawPath(paths.get(i), paints.get(i));
         }
-
         canvas.drawPath(drawPath, drawPaint);
     }
 
@@ -70,7 +71,6 @@ public class DrawingView extends View {
                 drawPath.lineTo(x, y);
                 break;
             case MotionEvent.ACTION_UP:
-                
                 paths.add(new Path(drawPath));
                 paints.add(new Paint(drawPaint));
                 drawPath.reset();
@@ -80,23 +80,31 @@ public class DrawingView extends View {
         return true;
     }
 
-
-
+    // שינוי צבע מקוד String (למשל "#FFFFFF")
     public void setColor(String colorCode) {
+        isEraserMode = false;
         currentColor = Color.parseColor(colorCode);
         setupPaint();
     }
 
-    public void setStrokeWidth(float width) {
-        currentStrokeWidth = width;
+    // שינוי צבע ישירות מ-int (בשביל ה-Color Picker)
+    public void setColor(int color) {
+        isEraserMode = false;
+        this.currentColor = color;
         setupPaint();
     }
 
-    public void setEraser() {
-        currentColor = Color.WHITE;
+    public void setEraserMode(boolean enabled) {
+        if (enabled) {
+            currentColor = Color.WHITE;
+            drawPaint.setStrokeWidth(currentStrokeWidth * 3);
+        } else {
+
+            currentColor = Color.BLACK;
+            drawPaint.setStrokeWidth(currentStrokeWidth);
+        }
         setupPaint();
     }
-
     public void undo() {
         if (paths.size() > 0) {
             undonePaths.add(paths.remove(paths.size() - 1));
@@ -113,15 +121,11 @@ public class DrawingView extends View {
         }
     }
 
-    public void clearAll() {
+    public void clear() {
         paths.clear();
         paints.clear();
         undonePaths.clear();
         undonePaints.clear();
         invalidate();
-    }
-    public void setColorFromInt(int color) {
-        this.currentColor = color;
-        setupPaint();
     }
 }
