@@ -49,5 +49,7 @@ dependencies {
     implementation("com.github.yukuku:ambilwarna:2.0.1")
     implementation("com.google.firebase:firebase-database")
     implementation("com.google.firebase:firebase-analytics")
+    implementation("nl.dionsegijn:konfetti-xml:2.0.2")
+    implementation ("com.google.firebase:firebase-firestore")
 
 }

@@ -9,6 +9,7 @@ import android.util.AttributeSet;
 import android.view.MotionEvent;
 import android.view.View;
 import java.util.ArrayList;
+import android.graphics.Bitmap;
 
 public class DrawingView extends View {
 
@@ -78,14 +79,14 @@ public class DrawingView extends View {
         return true;
     }
 
-    // --- הפונקציה החדשה שחיכינו לה! ---
+
     public void setStrokeWidth(float newWidth) {
         currentStrokeWidth = newWidth;
-        setupPaint(); // מעדכן את המכחול הנוכחי
+        setupPaint();
     }
 
     public void setColor(int color) {
-        isEraserMode = false; // ברגע שבוחרים צבע, המחק מתבטל
+        isEraserMode = false;
         this.currentColor = color;
         setupPaint();
     }
@@ -109,5 +110,17 @@ public class DrawingView extends View {
         undonePaths.clear();
         undonePaints.clear();
         invalidate();
+    }
+
+    public Bitmap getBitmap() {
+
+        Bitmap bitmap = Bitmap.createBitmap(getWidth(), getHeight(), Bitmap.Config.ARGB_8888);
+
+        Canvas canvas = new Canvas(bitmap);
+
+        draw(canvas);
+
+
+        return bitmap;
     }
 }

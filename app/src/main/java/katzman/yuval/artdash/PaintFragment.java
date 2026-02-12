@@ -1,20 +1,27 @@
 package katzman.yuval.artdash;
 
 import android.content.res.ColorStateList;
+import android.graphics.Bitmap;
 import android.graphics.Color;
 import android.os.Bundle;
 import android.os.CountDownTimer;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
-import android.widget.SeekBar; // הוספנו את זה
+import android.widget.SeekBar;
 import android.widget.TextView;
 import android.widget.Toast;
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.fragment.app.Fragment;
+import com.google.firebase.firestore.FieldValue;
 import com.google.firebase.firestore.FirebaseFirestore;
+import android.util.Base64;
+
+import java.io.ByteArrayOutputStream;
+import java.util.HashMap;
 import java.util.Locale;
+import java.util.Map;
 import yuku.ambilwarna.AmbilWarnaDialog;
 
 public class PaintFragment extends Fragment {
@@ -49,11 +56,9 @@ public class PaintFragment extends Fragment {
     }
 
     private void toggleBottomNavigation(boolean show) {
-        if (getActivity() != null) {
-            View nav = getActivity().findViewById(R.id.bottomNavigation);
-            if (nav != null) {
-                nav.setVisibility(show ? View.VISIBLE : View.GONE);
-            }
+        if (getActivity() instanceof MainActivity) {
+            int visibility = show ? View.VISIBLE : View.GONE;
+            ((MainActivity) getActivity()).setBottomNavigationVisibility(visibility);
         }
     }
 
@@ -69,7 +74,7 @@ public class PaintFragment extends Fragment {
                 if (startTime != null) {
                     calculateAndStartTimer(startTime);
                 } else {
-                    startMatchTimer(180000);
+                    startMatchTimer(1800);
                 }
             }
         });
@@ -114,24 +119,15 @@ public class PaintFragment extends Fragment {
     }
 
     private void setupActionButtons(View v) {
-        // ביטול פעולה
         v.findViewById(R.id.btnUndo).setOnClickListener(view -> drawingView.undo());
-
-        // מעבר למצב מחק
         v.findViewById(R.id.btnEraser).setOnClickListener(view -> drawingView.setEraserMode(true));
-
-        // ניקוי כל הקנבס
         v.findViewById(R.id.btnClear).setOnClickListener(view -> drawingView.clear());
-
-        // פתיחת דיאלוג בחירת צבע
         v.findViewById(R.id.btnColorWheel).setOnClickListener(view -> openColorPickerDialog());
 
-        // הגדרת ה-SeekBar לשליטה בעובי המכחול
         SeekBar sbBrushSize = v.findViewById(R.id.sbBrushSize);
         sbBrushSize.setOnSeekBarChangeListener(new SeekBar.OnSeekBarChangeListener() {
             @Override
             public void onProgressChanged(SeekBar seekBar, int progress, boolean fromUser) {
-
                 drawingView.setStrokeWidth(progress + 5f);
             }
 
@@ -151,7 +147,6 @@ public class PaintFragment extends Fragment {
             @Override
             public void onOk(AmbilWarnaDialog dialog, int color) {
                 drawingView.setColor(color);
-                // מעדכנים את צבע כפתור בחירת הצבע כדי שהמשתמש יראה מה הוא בחר
                 View colorButton = getView().findViewById(R.id.btnColorWheel);
                 if (colorButton != null) {
                     colorButton.setBackgroundTintList(ColorStateList.valueOf(color));
@@ -169,6 +164,53 @@ public class PaintFragment extends Fragment {
 
     private void saveDrawingToCloud() {
 
+        Bitmap bitmap = drawingView.getBitmap();
+        ByteArrayOutputStream baos = new ByteArrayOutputStream();
+
+        bitmap.compress(Bitmap.CompressFormat.JPEG, 50, baos);
+        byte[] data = baos.toByteArray();
+
+
+        String imageString = Base64.encodeToString(data, Base64.DEFAULT);
+
+
+        updateFirestoreWithImageUrl(imageString);
+    }
+
+    private void updateFirestoreWithImageUrl(String imageEncoded) {
+        if (roomId != null) {
+            Map<String, Object> data = new HashMap<>();
+            data.put("imageData", imageEncoded);
+            data.put("timestamp", FieldValue.serverTimestamp());
+            data.put("player", "User_" + System.currentTimeMillis() % 1000);
+
+            db.collection("rooms").document(roomId)
+                    .collection("submissions").document("my_user_id")
+                    .set(data)
+                    .addOnSuccessListener(aVoid -> {
+
+                        navigateToVoting();
+                    })
+                    .addOnFailureListener(e -> {
+                        Toast.makeText(getContext(), "Error: " + e.getMessage(), Toast.LENGTH_SHORT).show();
+                    });
+        }
+    }
+
+    private void navigateToVoting() {
+        VotingFragment votingFragment = new VotingFragment();
+
+
+        Bundle args = new Bundle();
+        args.putString("roomId", roomId);
+        votingFragment.setArguments(args);
+
+        if (getActivity() != null) {
+            getActivity().getSupportFragmentManager().beginTransaction()
+                    .replace(R.id.mainFragmentContainer, votingFragment)
+                    .addToBackStack(null)
+                    .commit();
+        }
     }
 
     @Override

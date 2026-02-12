@@ -2,24 +2,30 @@
 <LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
     android:orientation="vertical"
     android:gravity="center_horizontal"
+    android:background="#1A1333"
     android:padding="32dp">
 
     <ImageView
         android:id="@+id/ivLogo"
-        android:layout_width="350dp"  android:layout_height="250dp" android:layout_marginTop="20dp"
-        android:layout_marginBottom="-40dp"
-        android:src="@drawable/textlogo"
-        android:scaleType="fitCenter"
-        android:contentDescription="ArtDash Logo" />
+        android:layout_width="350dp"
+        android:layout_height="250dp"
+        android:layout_marginTop="20dp"
+        android:layout_marginBottom="-20dp"
+        android:contentDescription="ArtDash Logo"
+
+        android:src="@drawable/textlogo" />
 
     <TextView
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:text="Create New Account"
-        android:textColor="#FFFFFF"
-        android:textSize="20sp"
+        android:textColor="#88FFFFFF"
+        android:textSize="18sp"
+        android:textAllCaps="true"
+        android:letterSpacing="0.1"
         android:layout_marginBottom="24dp" />
 
     <EditText
@@ -27,52 +33,56 @@
         android:layout_width="match_parent"
         android:layout_height="55dp"
         android:hint="Full Name"
-        android:textColorHint="#CCFFFFFF"
+        android:textColorHint="#66FFFFFF"
         android:textColor="#FFFFFF"
-        android:paddingStart="20dp"
-        android:background="@drawable/input_field_bg"
-        android:layout_marginBottom="16dp" />
+        android:paddingStart="8dp"
+        android:backgroundTint="#88FFFFFF"
+        android:layout_marginBottom="12dp" />
 
     <EditText
         android:id="@+id/etEmailRegister"
         android:layout_width="match_parent"
         android:layout_height="55dp"
         android:hint="Email"
-        android:textColorHint="#CCFFFFFF"
+        android:textColorHint="#66FFFFFF"
         android:textColor="#FFFFFF"
-        android:paddingStart="20dp"
+        android:paddingStart="8dp"
         android:inputType="textEmailAddress"
-        android:background="@drawable/input_field_bg"
-        android:layout_marginBottom="16dp" />
+        android:backgroundTint="#88FFFFFF"
+        android:layout_marginBottom="12dp" />
 
     <EditText
         android:id="@+id/etPasswordRegister"
         android:layout_width="match_parent"
         android:layout_height="55dp"
         android:hint="Password"
-        android:textColorHint="#CCFFFFFF"
+        android:textColorHint="#66FFFFFF"
         android:textColor="#FFFFFF"
-        android:paddingStart="20dp"
+        android:paddingStart="8dp"
         android:inputType="textPassword"
-        android:background="@drawable/input_field_bg"
+        android:backgroundTint="#88FFFFFF"
         android:layout_marginBottom="24dp" />
 
-    <android.widget.Button
+    <com.google.android.material.button.MaterialButton
         android:id="@+id/btnRegister"
         android:layout_width="match_parent"
-        android:layout_height="55dp"
+        android:layout_height="60dp"
         android:text="Sign Up"
-        android:textAllCaps="false"
+        android:textAllCaps="true"
         android:textSize="18sp"
-        android:textColor="#FFFFFF"
-        android:background="@drawable/button_bg" />
+        android:textStyle="bold"
+
+        android:textColor="#1A1333"
+        app:cornerRadius="30dp"
+        app:backgroundTint="#FFD600"/>
 
     <TextView
         android:id="@+id/tvBackToLogin"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:text="Already have an account? Log In"
-        android:textColor="#FFFFFF"
+        android:textColor="#FFD600"
+        android:textStyle="bold"
         android:layout_marginTop="20dp" />
 
 </LinearLayout>

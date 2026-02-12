@@ -13,12 +13,14 @@
         android:orientation="horizontal"
         android:padding="24dp"
         android:gravity="center_vertical"
+
         app:layout_constraintTop_toTopOf="parent">
 
         <LinearLayout
             android:layout_width="0dp"
             android:layout_height="wrap_content"
             android:layout_weight="1"
+
             android:orientation="vertical">
             <TextView
                 android:layout_width="wrap_content"
@@ -31,7 +33,7 @@
                 android:id="@+id/tvTopic"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:text="Loading..."
+                android:text="Hot Air Balloon"
                 android:textColor="#FFFFFF"
                 android:textSize="20sp"
                 android:textStyle="bold" />
@@ -54,10 +56,11 @@
         android:id="@+id/canvasContainer"
         android:layout_width="0dp"
         android:layout_height="0dp"
-        android:layout_marginHorizontal="16dp"
-        android:layout_marginBottom="20dp"
+        android:layout_marginHorizontal="20dp"
+        android:layout_marginTop="8dp"
+        android:layout_marginBottom="24dp"
         android:background="@drawable/canvas_rounded_bg"
-        android:elevation="8dp"
+        android:elevation="4dp"
         android:padding="4dp"
         app:layout_constraintBottom_toTopOf="@+id/bottomToolsCard"
         app:layout_constraintEnd_toEndOf="parent"
@@ -75,7 +78,7 @@
         android:id="@+id/bottomToolsCard"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:layout_marginBottom="24dp"
+        android:layout_marginBottom="32dp"
         app:cardBackgroundColor="#2A1F4D"
         app:cardCornerRadius="100dp"
         app:cardElevation="12dp"
@@ -85,10 +88,11 @@
 
         <LinearLayout
             android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:gravity="center_vertical"
+            android:layout_height="64dp"
+            android:gravity="center"
+            android:translationZ="10dp"
             android:orientation="horizontal"
-            android:padding="12dp">
+            android:paddingHorizontal="16dp">
 
             <ImageButton
                 android:id="@+id/btnColorWheel"
@@ -99,7 +103,7 @@
                 android:src="@android:drawable/ic_menu_compass"
                 app:tint="#FFD600" />
 
-            <View android:layout_width="12dp" android:layout_height="1dp"/>
+            <View android:layout_width="8dp" android:layout_height="1dp"/>
 
             <SeekBar
                 android:id="@+id/sbBrushSize"
@@ -109,16 +113,16 @@
                 android:progress="10"
                 android:progressTint="#FFD600"
                 android:thumbTint="#FFFFFF"
-                android:contentDescription="Brush thickness slider" />
+                android:contentDescription="Brush thickness" />
 
-            <View android:layout_width="12dp" android:layout_height="1dp"/>
+            <View android:layout_width="8dp" android:layout_height="1dp"/>
 
             <ImageButton
                 android:id="@+id/btnUndo"
                 android:layout_width="48dp"
                 android:layout_height="48dp"
                 android:background="?attr/selectableItemBackgroundBorderless"
-                android:contentDescription="Undo last stroke"
+                android:contentDescription="Undo action"
                 android:src="@android:drawable/ic_menu_revert"
                 app:tint="#FFFFFF" />
 
@@ -136,9 +140,10 @@
                 android:layout_width="48dp"
                 android:layout_height="48dp"
                 android:background="?attr/selectableItemBackgroundBorderless"
-                android:contentDescription="Clear entire canvas"
+                android:contentDescription="Clear canvas"
                 android:src="@android:drawable/ic_menu_close_clear_cancel"
                 app:tint="#FF5252" />
+
         </LinearLayout>
     </androidx.cardview.widget.CardView>
 
