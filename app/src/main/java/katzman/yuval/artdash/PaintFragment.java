@@ -5,28 +5,33 @@ import android.graphics.Bitmap;
 import android.graphics.Color;
 import android.os.Bundle;
 import android.os.CountDownTimer;
+import android.util.Base64;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.ImageButton;
 import android.widget.SeekBar;
 import android.widget.TextView;
 import android.widget.Toast;
+
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.fragment.app.Fragment;
+
+import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.firestore.FieldValue;
 import com.google.firebase.firestore.FirebaseFirestore;
-import android.util.Base64;
 
 import java.io.ByteArrayOutputStream;
 import java.util.HashMap;
 import java.util.Locale;
 import java.util.Map;
+
 import yuku.ambilwarna.AmbilWarnaDialog;
 
 public class PaintFragment extends Fragment {
 
-    private DrawingView drawingView;
+    private katzman.yuval.artdash.DrawingView drawingView;
     private TextView tvTimer, tvTopic;
     private String roomId;
     private FirebaseFirestore db = FirebaseFirestore.getInstance();
@@ -37,8 +42,6 @@ public class PaintFragment extends Fragment {
     public View onCreateView(@NonNull LayoutInflater inflater, @Nullable ViewGroup container, @Nullable Bundle savedInstanceState) {
         View view = inflater.inflate(R.layout.fragment_paint, container, false);
 
-        toggleBottomNavigation(false);
-
         drawingView = view.findViewById(R.id.drawingView);
         tvTimer = view.findViewById(R.id.tvTimer);
         tvTopic = view.findViewById(R.id.tvTopic);
@@ -46,8 +49,6 @@ public class PaintFragment extends Fragment {
         if (getArguments() != null) {
             roomId = getArguments().getString("roomId");
             loadGameData();
-        } else {
-            tvTopic.setText("Draw: Something Creative");
         }
 
         setupActionButtons(view);
@@ -55,20 +56,71 @@ public class PaintFragment extends Fragment {
         return view;
     }
 
-    private void toggleBottomNavigation(boolean show) {
-        if (getActivity() instanceof MainActivity) {
-            int visibility = show ? View.VISIBLE : View.GONE;
-            ((MainActivity) getActivity()).setBottomNavigationVisibility(visibility);
+    private void setupActionButtons(View v) {
+
+        View bottomCard = v.findViewById(R.id.bottomToolsCard);
+        if (bottomCard != null) {
+            bottomCard.setElevation(20f);
+            bottomCard.setTranslationZ(20f);
         }
+
+
+        v.findViewById(R.id.btnUndo).setOnClickListener(view -> drawingView.undo());
+        v.findViewById(R.id.btnRedo).setOnClickListener(view -> drawingView.redo());
+
+
+        v.findViewById(R.id.btnEraser).setOnClickListener(view -> {
+            drawingView.setEraserMode(true);
+            Toast.makeText(getContext(), "Eraser Mode", Toast.LENGTH_SHORT).show();
+        });
+
+
+        v.findViewById(R.id.btnClear).setOnClickListener(view -> drawingView.clearCanvas());
+
+
+        v.findViewById(R.id.btnColorWheel).setOnClickListener(view -> openColorPickerDialog());
+
+
+        SeekBar sbBrushSize = v.findViewById(R.id.sbBrushSize);
+        sbBrushSize.setOnSeekBarChangeListener(new SeekBar.OnSeekBarChangeListener() {
+            @Override
+            public void onProgressChanged(SeekBar seekBar, int progress, boolean fromUser) {
+
+                drawingView.setStrokeWidth(progress + 5f);
+            }
+            @Override
+            public void onStartTrackingTouch(SeekBar seekBar) {}
+            @Override
+            public void onStopTrackingTouch(SeekBar seekBar) {}
+        });
+    }
+
+    private void openColorPickerDialog() {
+        AmbilWarnaDialog colorPicker = new AmbilWarnaDialog(getContext(), Color.BLACK, new AmbilWarnaDialog.OnAmbilWarnaListener() {
+            @Override
+            public void onCancel(AmbilWarnaDialog dialog) {}
+
+            @Override
+            public void onOk(AmbilWarnaDialog dialog, int color) {
+                drawingView.setEraserMode(false);
+                drawingView.setColor(color);
+
+
+                ImageButton colorButton = (ImageButton) getView().findViewById(R.id.btnColorWheel);
+                if (colorButton != null) {
+                    colorButton.setImageTintList(ColorStateList.valueOf(color));
+                }
+            }
+        });
+        colorPicker.show();
     }
 
     private void loadGameData() {
         if (roomId == null) return;
-
         db.collection("rooms").document(roomId).get().addOnSuccessListener(doc -> {
             if (doc.exists()) {
                 String topic = doc.getString("topic");
-                tvTopic.setText(topic != null ? topic : "Something Creative");
+                tvTopic.setText(topic != null ? topic : "Draw Something!");
 
                 com.google.firebase.Timestamp startTime = doc.getTimestamp("startTime");
                 if (startTime != null) {
@@ -97,7 +149,6 @@ public class PaintFragment extends Fragment {
 
     private void startMatchTimer(long timeInMillis) {
         if (gameTimer != null) gameTimer.cancel();
-
         gameTimer = new CountDownTimer(timeInMillis, 1000) {
             @Override
             public void onTick(long millisUntilFinished) {
@@ -105,11 +156,11 @@ public class PaintFragment extends Fragment {
                 int seconds = (int) (millisUntilFinished / 1000) % 60;
                 tvTimer.setText(String.format(Locale.getDefault(), "%02d:%02d", minutes, seconds));
 
+
                 if (millisUntilFinished < 10000) {
                     tvTimer.setTextColor(Color.RED);
                 }
             }
-
             @Override
             public void onFinish() {
                 tvTimer.setText("00:00");
@@ -118,107 +169,74 @@ public class PaintFragment extends Fragment {
         }.start();
     }
 
-    private void setupActionButtons(View v) {
-        v.findViewById(R.id.btnUndo).setOnClickListener(view -> drawingView.undo());
-        v.findViewById(R.id.btnEraser).setOnClickListener(view -> drawingView.setEraserMode(true));
-        v.findViewById(R.id.btnClear).setOnClickListener(view -> drawingView.clear());
-        v.findViewById(R.id.btnColorWheel).setOnClickListener(view -> openColorPickerDialog());
-
-        SeekBar sbBrushSize = v.findViewById(R.id.sbBrushSize);
-        sbBrushSize.setOnSeekBarChangeListener(new SeekBar.OnSeekBarChangeListener() {
-            @Override
-            public void onProgressChanged(SeekBar seekBar, int progress, boolean fromUser) {
-                drawingView.setStrokeWidth(progress + 5f);
-            }
-
-            @Override
-            public void onStartTrackingTouch(SeekBar seekBar) {}
-
-            @Override
-            public void onStopTrackingTouch(SeekBar seekBar) {}
-        });
-    }
-
-    private void openColorPickerDialog() {
-        AmbilWarnaDialog colorPicker = new AmbilWarnaDialog(getContext(), Color.BLACK, new AmbilWarnaDialog.OnAmbilWarnaListener() {
-            @Override
-            public void onCancel(AmbilWarnaDialog dialog) {}
-
-            @Override
-            public void onOk(AmbilWarnaDialog dialog, int color) {
-                drawingView.setColor(color);
-                View colorButton = getView().findViewById(R.id.btnColorWheel);
-                if (colorButton != null) {
-                    colorButton.setBackgroundTintList(ColorStateList.valueOf(color));
-                }
-            }
-        });
-        colorPicker.show();
-    }
-
     private void onTimeIsUp() {
         drawingView.setEnabled(false);
         saveDrawingToCloud();
-        Toast.makeText(getContext(), "Time's up! Submitting...", Toast.LENGTH_LONG).show();
+        Toast.makeText(getContext(), "Time's up! Saving...", Toast.LENGTH_LONG).show();
     }
 
     private void saveDrawingToCloud() {
-
-        Bitmap bitmap = drawingView.getBitmap();
-        ByteArrayOutputStream baos = new ByteArrayOutputStream();
-
-        bitmap.compress(Bitmap.CompressFormat.JPEG, 50, baos);
-        byte[] data = baos.toByteArray();
-
-
-        String imageString = Base64.encodeToString(data, Base64.DEFAULT);
-
-
-        updateFirestoreWithImageUrl(imageString);
+        try {
+            Bitmap bitmap = drawingView.getBitmap();
+            ByteArrayOutputStream baos = new ByteArrayOutputStream();
+            bitmap.compress(Bitmap.CompressFormat.JPEG, 50, baos); // דחיסה ל-50% לצורך חיסכון בנפח ב-Firestore
+            String imageString = Base64.encodeToString(baos.toByteArray(), Base64.DEFAULT);
+            updateFirestoreWithImageUrl(imageString);
+        } catch (Exception e) {
+            Toast.makeText(getContext(), "Error saving image", Toast.LENGTH_SHORT).show();
+        }
     }
 
     private void updateFirestoreWithImageUrl(String imageEncoded) {
-        if (roomId != null) {
-            Map<String, Object> data = new HashMap<>();
-            data.put("imageData", imageEncoded);
-            data.put("timestamp", FieldValue.serverTimestamp());
-            data.put("player", "User_" + System.currentTimeMillis() % 1000);
+        String userId = FirebaseAuth.getInstance().getCurrentUser() != null ?
+                FirebaseAuth.getInstance().getCurrentUser().getUid() : "guest_" + System.currentTimeMillis();
 
-            db.collection("rooms").document(roomId)
-                    .collection("submissions").document("my_user_id")
-                    .set(data)
-                    .addOnSuccessListener(aVoid -> {
+        Map<String, Object> data = new HashMap<>();
+        data.put("imageData", imageEncoded);
+        data.put("totalScore", 0);
+        data.put("timestamp", FieldValue.serverTimestamp());
 
-                        navigateToVoting();
-                    })
-                    .addOnFailureListener(e -> {
-                        Toast.makeText(getContext(), "Error: " + e.getMessage(), Toast.LENGTH_SHORT).show();
-                    });
-        }
+        db.collection("rooms").document(roomId)
+                .collection("submissions").document(userId)
+                .set(data)
+                .addOnSuccessListener(aVoid -> navigateToVoting())
+                .addOnFailureListener(e -> Toast.makeText(getContext(), "Cloud Save Failed", Toast.LENGTH_SHORT).show());
     }
 
     private void navigateToVoting() {
-        VotingFragment votingFragment = new VotingFragment();
+        if (isAdded()) {
+            VotingFragment votingFragment = new VotingFragment();
+            Bundle args = new Bundle();
+            args.putString("roomId", roomId);
+            votingFragment.setArguments(args);
 
-
-        Bundle args = new Bundle();
-        args.putString("roomId", roomId);
-        votingFragment.setArguments(args);
-
-        if (getActivity() != null) {
-            getActivity().getSupportFragmentManager().beginTransaction()
+            getParentFragmentManager().beginTransaction()
                     .replace(R.id.mainFragmentContainer, votingFragment)
-                    .addToBackStack(null)
                     .commit();
         }
+    }
+
+    private void toggleBottomNavigation(boolean show) {
+        if (getActivity() instanceof MainActivity) {
+            ((MainActivity) getActivity()).setBottomNavigationVisibility(show ? View.VISIBLE : View.GONE);
+        }
+    }
+
+    @Override
+    public void onResume() {
+        super.onResume();
+        toggleBottomNavigation(false);
+    }
+
+    @Override
+    public void onPause() {
+        super.onPause();
+        toggleBottomNavigation(true);
     }
 
     @Override
     public void onDestroyView() {
         super.onDestroyView();
-        toggleBottomNavigation(true);
-        if (gameTimer != null) {
-            gameTimer.cancel();
-        }
+        if (gameTimer != null) gameTimer.cancel();
     }
 }

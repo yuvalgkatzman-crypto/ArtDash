@@ -1,7 +1,7 @@
 package katzman.yuval.artdash;
 
 import android.os.Bundle;
-import android.view.View; // הוספנו את זה
+import android.view.View;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.fragment.app.Fragment;
 import com.google.android.material.bottomnavigation.BottomNavigationView;
@@ -9,6 +9,7 @@ import com.google.android.material.bottomnavigation.BottomNavigationView;
 public class MainActivity extends AppCompatActivity {
 
     private BottomNavigationView bottomNav;
+    private View navCard;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -16,14 +17,13 @@ public class MainActivity extends AppCompatActivity {
         setContentView(R.layout.activity_main);
 
         bottomNav = findViewById(R.id.bottomNavigation);
-
+        navCard = findViewById(R.id.nav_card);
 
         if (savedInstanceState == null) {
             getSupportFragmentManager().beginTransaction()
                     .replace(R.id.mainFragmentContainer, new HomeFragment())
                     .commit();
         }
-
 
         bottomNav.setOnItemSelectedListener(item -> {
             Fragment selectedFragment = null;
@@ -38,6 +38,9 @@ public class MainActivity extends AppCompatActivity {
             }
 
             if (selectedFragment != null) {
+                // וידוא שהתפריט חוזר למצב גלוי כשלוחצים עליו
+                setBottomNavigationVisibility(View.VISIBLE);
+
                 getSupportFragmentManager().beginTransaction()
                         .replace(R.id.mainFragmentContainer, selectedFragment)
                         .commit();
@@ -47,10 +50,9 @@ public class MainActivity extends AppCompatActivity {
         });
     }
 
-
     public void setBottomNavigationVisibility(int visibility) {
-        if (bottomNav != null) {
-            bottomNav.setVisibility(visibility);
+        if (navCard != null) {
+            navCard.setVisibility(visibility);
         }
     }
 }

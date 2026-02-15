@@ -44,10 +44,26 @@ public class VotingFragment extends Fragment {
 
         if (getArguments() != null) {
             roomId = getArguments().getString("roomId");
+            loadRoomTopic(); // קריאה חדשה להבאת הנושא
             loadAllSubmissions();
         }
 
         return view;
+    }
+
+    // פונקציה חדשה שמושכת את הנושא מהחדר
+    private void loadRoomTopic() {
+        if (roomId == null) return;
+
+        db.collection("rooms").document(roomId).get()
+                .addOnSuccessListener(documentSnapshot -> {
+                    if (documentSnapshot.exists()) {
+                        String topic = documentSnapshot.getString("topic");
+                        if (topic != null) {
+                            tvVotingTopic.setText("Topic: " + topic);
+                        }
+                    }
+                });
     }
 
     private void toggleBottomNavigation(boolean show) {
@@ -139,15 +155,20 @@ public class VotingFragment extends Fragment {
     }
 
     @Override
-    public void onViewCreated(@NonNull View view, @Nullable Bundle savedInstanceState) {
-        super.onViewCreated(view, savedInstanceState);
+    public void onResume() {
+        super.onResume();
         toggleBottomNavigation(false);
+    }
+
+    @Override
+    public void onPause() {
+        super.onPause();
+        toggleBottomNavigation(true);
     }
 
     @Override
     public void onDestroyView() {
         super.onDestroyView();
         if (voteTimer != null) voteTimer.cancel();
-        toggleBottomNavigation(true);
     }
 }

@@ -8,19 +8,19 @@
 
     <LinearLayout
         android:id="@+id/topBar"
-        android:layout_width="match_parent"
+        android:layout_width="0dp"
         android:layout_height="wrap_content"
         android:orientation="horizontal"
         android:padding="24dp"
         android:gravity="center_vertical"
-
-        app:layout_constraintTop_toTopOf="parent">
+        app:layout_constraintTop_toTopOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintEnd_toEndOf="parent">
 
         <LinearLayout
             android:layout_width="0dp"
             android:layout_height="wrap_content"
             android:layout_weight="1"
-
             android:orientation="vertical">
             <TextView
                 android:layout_width="wrap_content"
@@ -33,7 +33,7 @@
                 android:id="@+id/tvTopic"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:text="Hot Air Balloon"
+                android:text="Loading..."
                 android:textColor="#FFFFFF"
                 android:textSize="20sp"
                 android:textStyle="bold" />
@@ -49,7 +49,9 @@
             android:text="03:00"
             android:textColor="#FFD600"
             android:textSize="22sp"
-            android:textStyle="bold" />
+            android:textStyle="bold"
+            android:focusable="true"
+            android:clickable="false" />
     </LinearLayout>
 
     <FrameLayout
@@ -62,10 +64,10 @@
         android:background="@drawable/canvas_rounded_bg"
         android:elevation="4dp"
         android:padding="4dp"
-        app:layout_constraintBottom_toTopOf="@+id/bottomToolsCard"
-        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintTop_toBottomOf="@id/topBar"
+        app:layout_constraintBottom_toTopOf="@id/bottomToolsCard"
         app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toBottomOf="@id/topBar">
+        app:layout_constraintEnd_toEndOf="parent">
 
         <katzman.yuval.artdash.DrawingView
             android:id="@+id/drawingView"
@@ -81,67 +83,86 @@
         android:layout_marginBottom="32dp"
         app:cardBackgroundColor="#2A1F4D"
         app:cardCornerRadius="100dp"
-        app:cardElevation="12dp"
+        app:cardElevation="15dp"
+        android:translationZ="20dp"
+        android:focusable="true"
+        android:clickable="true"
         app:layout_constraintBottom_toBottomOf="parent"
-        app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintStart_toStartOf="parent">
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintEnd_toEndOf="parent">
 
         <LinearLayout
             android:layout_width="wrap_content"
             android:layout_height="64dp"
             android:gravity="center"
-            android:translationZ="10dp"
             android:orientation="horizontal"
-            android:paddingHorizontal="16dp">
+            android:paddingHorizontal="12dp">
 
             <ImageButton
                 android:id="@+id/btnColorWheel"
-                android:layout_width="48dp"
-                android:layout_height="48dp"
+                android:layout_width="44dp"
+                android:layout_height="44dp"
                 android:background="@drawable/circle_tool"
-                android:contentDescription="Select Color"
                 android:src="@android:drawable/ic_menu_compass"
+                android:clickable="true"
+                android:focusable="true"
+                android:contentDescription="Color Picker"
                 app:tint="#FFD600" />
-
-            <View android:layout_width="8dp" android:layout_height="1dp"/>
 
             <SeekBar
                 android:id="@+id/sbBrushSize"
-                android:layout_width="100dp"
-                android:layout_height="48dp"
+                android:layout_width="80dp"
+                android:layout_height="wrap_content"
                 android:max="50"
                 android:progress="10"
                 android:progressTint="#FFD600"
                 android:thumbTint="#FFFFFF"
-                android:contentDescription="Brush thickness" />
-
-            <View android:layout_width="8dp" android:layout_height="1dp"/>
+                android:focusable="true"
+                android:clickable="true" />
 
             <ImageButton
                 android:id="@+id/btnUndo"
-                android:layout_width="48dp"
-                android:layout_height="48dp"
+                android:layout_width="44dp"
+                android:layout_height="44dp"
                 android:background="?attr/selectableItemBackgroundBorderless"
-                android:contentDescription="Undo action"
                 android:src="@android:drawable/ic_menu_revert"
+                android:clickable="true"
+                android:focusable="true"
+                android:contentDescription="Undo"
+                app:tint="#FFFFFF" />
+
+            <ImageButton
+                android:id="@+id/btnRedo"
+                android:layout_width="44dp"
+                android:layout_height="44dp"
+                android:background="?attr/selectableItemBackgroundBorderless"
+                android:src="@android:drawable/ic_menu_revert"
+                android:rotation="180"
+                android:clickable="true"
+                android:focusable="true"
+                android:contentDescription="Redo"
                 app:tint="#FFFFFF" />
 
             <ImageButton
                 android:id="@+id/btnEraser"
-                android:layout_width="48dp"
-                android:layout_height="48dp"
+                android:layout_width="44dp"
+                android:layout_height="44dp"
                 android:background="?attr/selectableItemBackgroundBorderless"
-                android:contentDescription="Eraser tool"
-                android:src="@android:drawable/ic_menu_delete"
+                android:src="@android:drawable/ic_menu_edit"
+                android:clickable="true"
+                android:focusable="true"
+                android:contentDescription="Eraser"
                 app:tint="#FFFFFF" />
 
             <ImageButton
                 android:id="@+id/btnClear"
-                android:layout_width="48dp"
-                android:layout_height="48dp"
+                android:layout_width="44dp"
+                android:layout_height="44dp"
                 android:background="?attr/selectableItemBackgroundBorderless"
-                android:contentDescription="Clear canvas"
-                android:src="@android:drawable/ic_menu_close_clear_cancel"
+                android:src="@android:drawable/ic_menu_delete"
+                android:clickable="true"
+                android:focusable="true"
+                android:contentDescription="Clear Canvas"
                 app:tint="#FF5252" />
 
         </LinearLayout>

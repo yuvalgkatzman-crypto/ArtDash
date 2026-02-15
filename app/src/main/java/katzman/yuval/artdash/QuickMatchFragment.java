@@ -35,7 +35,6 @@ public class QuickMatchFragment extends Fragment {
     private String currentRoomId = null;
     private ListenerRegistration roomListener;
 
-
     private static final int MAX_PLAYERS = 1;
 
     @Nullable
@@ -65,17 +64,14 @@ public class QuickMatchFragment extends Fragment {
         Animation rotate = AnimationUtils.loadAnimation(getContext(), R.anim.rotate_match);
         ivMatchIcon.startAnimation(rotate);
 
-
         db.collection("rooms")
                 .whereEqualTo("status", "waiting")
                 .limit(1)
                 .get()
                 .addOnSuccessListener(queryDocumentSnapshots -> {
                     if (!queryDocumentSnapshots.isEmpty()) {
-
                         joinRoom(queryDocumentSnapshots.getDocuments().get(0).getId());
                     } else {
-
                         fetchTopicAndCreateRoom();
                     }
                 })
@@ -83,21 +79,17 @@ public class QuickMatchFragment extends Fragment {
     }
 
     private void fetchTopicAndCreateRoom() {
-
         db.collection("topics").get().addOnSuccessListener(queryDocumentSnapshots -> {
             List<String> topicsList = new ArrayList<>();
             for (DocumentSnapshot doc : queryDocumentSnapshots) {
-
                 String name = doc.getString("name");
                 if (name != null) topicsList.add(name);
             }
-
 
             String selectedTopic = "Funny Animal";
             if (!topicsList.isEmpty()) {
                 selectedTopic = topicsList.get(new Random().nextInt(topicsList.size()));
             }
-
             createNewRoom(selectedTopic);
         }).addOnFailureListener(e -> createNewRoom("Creative Drawing"));
     }
@@ -137,20 +129,14 @@ public class QuickMatchFragment extends Fragment {
                     String status = snapshot.getString("status");
                     int count = (players != null) ? players.size() : 0;
 
-
                     btnStartMatch.setText("SEARCHING (" + count + "/" + MAX_PLAYERS + ")");
-
 
                     if ("started".equals(status)) {
                         matchFound();
-                    }
-
-                    else if (count >= MAX_PLAYERS) {
-
+                    } else if (count >= MAX_PLAYERS) {
                         db.collection("rooms").document(roomId)
                                 .update("status", "started",
                                         "startTime", FieldValue.serverTimestamp());
-
                         matchFound();
                     }
                 });
@@ -180,7 +166,6 @@ public class QuickMatchFragment extends Fragment {
         }
         isSearching = false;
 
-
         PaintFragment paintFragment = new PaintFragment();
         Bundle args = new Bundle();
         args.putString("roomId", currentRoomId);
@@ -191,6 +176,22 @@ public class QuickMatchFragment extends Fragment {
                     .replace(R.id.mainFragmentContainer, paintFragment)
                     .addToBackStack(null)
                     .commit();
+        }
+    }
+
+    @Override
+    public void onResume() {
+        super.onResume();
+        if (getActivity() instanceof MainActivity) {
+            ((MainActivity) getActivity()).setBottomNavigationVisibility(View.VISIBLE);
+        }
+    }
+
+    @Override
+    public void onPause() {
+        super.onPause();
+        if (isSearching) {
+            stopSearch();
         }
     }
 

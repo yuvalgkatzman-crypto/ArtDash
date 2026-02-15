@@ -1,6 +1,7 @@
 package katzman.yuval.artdash;
 
 import android.content.Context;
+import android.graphics.Bitmap;
 import android.graphics.Canvas;
 import android.graphics.Color;
 import android.graphics.Paint;
@@ -9,7 +10,6 @@ import android.util.AttributeSet;
 import android.view.MotionEvent;
 import android.view.View;
 import java.util.ArrayList;
-import android.graphics.Bitmap;
 
 public class DrawingView extends View {
 
@@ -17,11 +17,13 @@ public class DrawingView extends View {
     private Paint drawPaint;
     private ArrayList<Path> paths = new ArrayList<>();
     private ArrayList<Paint> paints = new ArrayList<>();
+
+
     private ArrayList<Path> undonePaths = new ArrayList<>();
     private ArrayList<Paint> undonePaints = new ArrayList<>();
 
     private int currentColor = Color.BLACK;
-    private float currentStrokeWidth = 10f; // עובי ברירת מחדל
+    private float currentStrokeWidth = 10f;
     private boolean isEraserMode = false;
 
     public DrawingView(Context context, AttributeSet attrs) {
@@ -36,23 +38,21 @@ public class DrawingView extends View {
 
     private void setupPaint() {
         drawPaint = new Paint();
-        drawPaint.setColor(currentColor);
+        drawPaint.setColor(isEraserMode ? Color.WHITE : currentColor);
         drawPaint.setAntiAlias(true);
         drawPaint.setStrokeWidth(currentStrokeWidth);
         drawPaint.setStyle(Paint.Style.STROKE);
         drawPaint.setStrokeJoin(Paint.Join.ROUND);
         drawPaint.setStrokeCap(Paint.Cap.ROUND);
-
-        if (isEraserMode) {
-            drawPaint.setColor(Color.WHITE);
-        }
     }
 
     @Override
     protected void onDraw(Canvas canvas) {
+
         for (int i = 0; i < paths.size(); i++) {
             canvas.drawPath(paths.get(i), paints.get(i));
         }
+
         canvas.drawPath(drawPath, drawPaint);
     }
 
@@ -63,7 +63,9 @@ public class DrawingView extends View {
 
         switch (event.getAction()) {
             case MotionEvent.ACTION_DOWN:
+
                 undonePaths.clear();
+                undonePaints.clear();
                 drawPath.moveTo(x, y);
                 break;
             case MotionEvent.ACTION_MOVE:
@@ -78,7 +80,6 @@ public class DrawingView extends View {
         invalidate();
         return true;
     }
-
 
     public void setStrokeWidth(float newWidth) {
         currentStrokeWidth = newWidth;
@@ -96,6 +97,7 @@ public class DrawingView extends View {
         setupPaint();
     }
 
+
     public void undo() {
         if (paths.size() > 0) {
             undonePaths.add(paths.remove(paths.size() - 1));
@@ -104,23 +106,31 @@ public class DrawingView extends View {
         }
     }
 
-    public void clear() {
+
+    public void redo() {
+        if (undonePaths.size() > 0) {
+            paths.add(undonePaths.remove(undonePaths.size() - 1));
+            paints.add(undonePaints.remove(undonePaints.size() - 1));
+            invalidate();
+        }
+    }
+
+    // פונקציית ניקוי מסך - הפתרון לשגיאה ב-Fragment
+    public void clearCanvas() {
         paths.clear();
         paints.clear();
         undonePaths.clear();
         undonePaints.clear();
+        drawPath.reset();
         invalidate();
     }
 
+
     public Bitmap getBitmap() {
-
         Bitmap bitmap = Bitmap.createBitmap(getWidth(), getHeight(), Bitmap.Config.ARGB_8888);
-
         Canvas canvas = new Canvas(bitmap);
-
+        canvas.drawColor(Color.WHITE);
         draw(canvas);
-
-
         return bitmap;
     }
 }
