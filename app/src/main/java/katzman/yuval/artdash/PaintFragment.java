@@ -126,7 +126,7 @@ public class PaintFragment extends Fragment {
                 if (startTime != null) {
                     calculateAndStartTimer(startTime);
                 } else {
-                    startMatchTimer(1800);
+                    startMatchTimer(180000);
                 }
             }
         });
@@ -135,7 +135,7 @@ public class PaintFragment extends Fragment {
     private void calculateAndStartTimer(com.google.firebase.Timestamp startTime) {
         long now = System.currentTimeMillis();
         long startMillis = startTime.toDate().getTime();
-        long totalGameTime = 180000;
+        long totalGameTime = 1800;
 
         long elapsed = now - startMillis;
         long remaining = totalGameTime - elapsed;
@@ -179,7 +179,7 @@ public class PaintFragment extends Fragment {
         try {
             Bitmap bitmap = drawingView.getBitmap();
             ByteArrayOutputStream baos = new ByteArrayOutputStream();
-            bitmap.compress(Bitmap.CompressFormat.JPEG, 50, baos); // דחיסה ל-50% לצורך חיסכון בנפח ב-Firestore
+            bitmap.compress(Bitmap.CompressFormat.JPEG, 50, baos);
             String imageString = Base64.encodeToString(baos.toByteArray(), Base64.DEFAULT);
             updateFirestoreWithImageUrl(imageString);
         } catch (Exception e) {
@@ -199,8 +199,21 @@ public class PaintFragment extends Fragment {
         db.collection("rooms").document(roomId)
                 .collection("submissions").document(userId)
                 .set(data)
-                .addOnSuccessListener(aVoid -> navigateToVoting())
+                .addOnSuccessListener(aVoid -> {
+                    saveToUserGallery(userId, imageEncoded);
+                    navigateToVoting();
+                })
                 .addOnFailureListener(e -> Toast.makeText(getContext(), "Cloud Save Failed", Toast.LENGTH_SHORT).show());
+    }
+
+    private void saveToUserGallery(String userId, String imageEncoded) {
+        Map<String, Object> personalData = new HashMap<>();
+        personalData.put("imageData", imageEncoded);
+        personalData.put("timestamp", FieldValue.serverTimestamp());
+        personalData.put("isTopPick", false);
+
+        db.collection("User").document(userId)
+                .collection("myDrawings").add(personalData);
     }
 
     private void navigateToVoting() {

@@ -38,7 +38,7 @@ public class MainActivity extends AppCompatActivity {
             }
 
             if (selectedFragment != null) {
-                // וידוא שהתפריט חוזר למצב גלוי כשלוחצים עליו
+
                 setBottomNavigationVisibility(View.VISIBLE);
 
                 getSupportFragmentManager().beginTransaction()
