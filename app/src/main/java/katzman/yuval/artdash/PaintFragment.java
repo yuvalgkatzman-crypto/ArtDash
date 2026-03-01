@@ -126,7 +126,7 @@ public class PaintFragment extends Fragment {
                 if (startTime != null) {
                     calculateAndStartTimer(startTime);
                 } else {
-                    startMatchTimer(180000);
+                    startMatchTimer(1800);
                 }
             }
         });

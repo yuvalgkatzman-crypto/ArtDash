@@ -2,20 +2,20 @@
 <androidx.constraintlayout.widget.ConstraintLayout
     xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    android:background="#1A1333"
+    android:background="@drawable/main_gradient_bg"
     android:padding="32dp">
 
     <ImageView
         android:id="@+id/ivLogo"
         android:layout_width="0dp"
-        android:layout_height="350dp"
-        android:layout_marginTop="-20dp"
+        android:layout_height="220dp"
+        android:layout_marginTop="20dp"
         android:src="@drawable/textlogo"
         android:adjustViewBounds="true"
         android:scaleType="centerInside"
-        android:alpha="0.9"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toTopOf="parent" />
@@ -23,41 +23,43 @@
     <EditText
         android:id="@+id/etEmail"
         android:layout_width="match_parent"
-        android:layout_height="55dp"
-        android:layout_marginTop="280dp"
-        android:backgroundTint="#88FFFFFF"
+        android:layout_height="60dp"
+        android:layout_marginTop="16dp"
+        android:background="@drawable/field_background"
         android:hint="Email"
-        android:text="yuvalg.katzman@gmail.com"
         android:inputType="textEmailAddress"
-        android:paddingStart="12dp"
+        android:paddingStart="20dp"
+        android:paddingEnd="20dp"
         android:textColor="#FFFFFF"
-        android:textColorHint="#66FFFFFF"
-        android:textSize="18sp"
-        app:layout_constraintTop_toTopOf="parent" />
+        android:textColorHint="#99FFFFFF"
+        android:textSize="16sp"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toBottomOf="@+id/ivLogo" />
 
     <EditText
         android:id="@+id/etPassword"
         android:layout_width="match_parent"
-        android:layout_height="55dp"
+        android:layout_height="60dp"
         android:layout_marginTop="16dp"
-        android:backgroundTint="#88FFFFFF"
+        android:background="@drawable/field_background"
         android:hint="Password"
-        android:text="Yuval123!"
         android:inputType="textPassword"
-        android:paddingStart="12dp"
+        android:paddingStart="20dp"
+        android:paddingEnd="20dp"
         android:textColor="#FFFFFF"
-        android:textColorHint="#66FFFFFF"
-        android:textSize="18sp"
+        android:textColorHint="#99FFFFFF"
+        android:textSize="16sp"
         app:layout_constraintTop_toBottomOf="@id/etEmail" />
 
     <TextView
         android:id="@+id/tvForgotPassword"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:layout_marginTop="8dp"
+        android:layout_marginTop="12dp"
         android:text="Forgot Password?"
-        android:textColor="#88FFFFFF"
+        android:textColor="#FFD600"
         android:textSize="14sp"
+        android:textStyle="bold"
         app:layout_constraintEnd_toEndOf="@id/etPassword"
         app:layout_constraintTop_toBottomOf="@id/etPassword" />
 
@@ -69,23 +71,22 @@
         android:text="LOGIN"
         android:textSize="18sp"
         android:textStyle="bold"
-        app:cornerRadius="30dp"
-        app:backgroundTint="#FFD600"
         android:textColor="#1A1333"
+        app:backgroundTint="@null"
+        android:background="@drawable/button_background"
         app:layout_constraintTop_toBottomOf="@id/tvForgotPassword" />
 
     <TextView
         android:id="@+id/tvGoToRegister"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:layout_marginTop="20dp"
-        android:text="Create Account"
+        android:layout_marginBottom="32dp"
+        android:text="Don't have an account? Sign Up"
         android:textColor="#88FFFFFF"
         android:textSize="14sp"
-        android:textAllCaps="true"
-        android:letterSpacing="0.1"
-        app:layout_constraintTop_toBottomOf="@id/btnLogin"
-        app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintEnd_toEndOf="parent" />
+        app:layout_constraintBottom_toBottomOf="parent"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintHorizontal_bias="0.496"
+        app:layout_constraintStart_toStartOf="parent" />
 
 </androidx.constraintlayout.widget.ConstraintLayout>

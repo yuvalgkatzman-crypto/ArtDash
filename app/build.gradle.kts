@@ -51,5 +51,7 @@ dependencies {
     implementation("com.google.firebase:firebase-analytics")
     implementation("nl.dionsegijn:konfetti-xml:2.0.2")
     implementation ("com.google.firebase:firebase-firestore")
+    implementation("androidx.viewpager2:viewpager2:1.1.0")
+
 
 }
