@@ -171,11 +171,12 @@ public class QuickMatchFragment extends Fragment {
         args.putString("roomId", currentRoomId);
         paintFragment.setArguments(args);
 
-        if (getActivity() != null) {
-            getParentFragmentManager().beginTransaction()
+        if (getActivity() != null && isAdded()) {
+            getActivity().getSupportFragmentManager().beginTransaction()
+                    .setCustomAnimations(android.R.anim.fade_in, android.R.anim.fade_out)
                     .replace(R.id.mainFragmentContainer, paintFragment)
                     .addToBackStack(null)
-                    .commit();
+                    .commitAllowingStateLoss();
         }
     }
 

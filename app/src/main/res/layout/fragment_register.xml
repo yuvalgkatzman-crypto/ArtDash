@@ -1,88 +1,91 @@
 <?xml version="1.0" encoding="utf-8"?>
-<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+<androidx.constraintlayout.widget.ConstraintLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    xmlns:app="http://schemas.android.com/apk/res-auto"
-    android:orientation="vertical"
-    android:gravity="center_horizontal"
-    android:background="#1A1333"
-    android:padding="32dp">
+    android:background="#050510">
 
-    <ImageView
-        android:id="@+id/ivLogo"
-        android:layout_width="350dp"
-        android:layout_height="250dp"
-        android:layout_marginTop="20dp"
-        android:layout_marginBottom="-20dp"
-        android:contentDescription="ArtDash Logo"
-
-        android:src="@drawable/textlogo" />
-
-    <TextView
-        android:layout_width="wrap_content"
+    <LinearLayout
+        android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:text="Create New Account"
-        android:textColor="#88FFFFFF"
-        android:textSize="18sp"
-        android:textAllCaps="true"
-        android:letterSpacing="0.1"
-        android:layout_marginBottom="24dp" />
+        android:gravity="center_horizontal"
+        android:orientation="vertical"
+        android:paddingHorizontal="32dp"
+        app:layout_constraintBottom_toBottomOf="parent"
+        app:layout_constraintTop_toTopOf="parent"
+        app:layout_constraintVertical_bias="0.5">
 
-    <EditText
-        android:id="@+id/etFullName"
-        android:layout_width="match_parent"
-        android:layout_height="55dp"
-        android:hint="Full Name"
-        android:textColorHint="#66FFFFFF"
-        android:textColor="#FFFFFF"
-        android:paddingStart="8dp"
-        android:backgroundTint="#88FFFFFF"
-        android:layout_marginBottom="12dp" />
+        <ImageView
+            android:id="@+id/ivLogo"
+            android:layout_width="match_parent"
+            android:layout_height="160dp"
+            android:scaleType="centerInside"
+            android:src="@drawable/artlogo"
+            android:layout_marginBottom="8dp"/>
 
-    <EditText
-        android:id="@+id/etEmailRegister"
-        android:layout_width="match_parent"
-        android:layout_height="55dp"
-        android:hint="Email"
-        android:textColorHint="#66FFFFFF"
-        android:textColor="#FFFFFF"
-        android:paddingStart="8dp"
-        android:inputType="textEmailAddress"
-        android:backgroundTint="#88FFFFFF"
-        android:layout_marginBottom="12dp" />
+        <EditText
+            android:id="@+id/etFullName"
+            android:layout_width="match_parent"
+            android:layout_height="60dp"
+            android:background="@drawable/field_background"
+            android:hint="Full Name"
+            android:inputType="textPersonName"
+            android:paddingHorizontal="24dp"
+            android:textColor="#FFFFFF"
+            android:textColorHint="#60FFFFFF"
+            android:textSize="15sp" />
 
-    <EditText
-        android:id="@+id/etPasswordRegister"
-        android:layout_width="match_parent"
-        android:layout_height="55dp"
-        android:hint="Password"
-        android:textColorHint="#66FFFFFF"
-        android:textColor="#FFFFFF"
-        android:paddingStart="8dp"
-        android:inputType="textPassword"
-        android:backgroundTint="#88FFFFFF"
-        android:layout_marginBottom="24dp" />
+        <EditText
+            android:id="@+id/etEmailRegister"
+            android:layout_width="match_parent"
+            android:layout_height="60dp"
+            android:layout_marginTop="12dp"
+            android:background="@drawable/field_background"
+            android:hint="Email Address"
+            android:inputType="textEmailAddress"
+            android:paddingHorizontal="24dp"
+            android:textColor="#FFFFFF"
+            android:textColorHint="#60FFFFFF"
+            android:textSize="15sp" />
 
-    <com.google.android.material.button.MaterialButton
-        android:id="@+id/btnRegister"
-        android:layout_width="match_parent"
-        android:layout_height="60dp"
-        android:text="Sign Up"
-        android:textAllCaps="true"
-        android:textSize="18sp"
-        android:textStyle="bold"
+        <EditText
+            android:id="@+id/etPasswordRegister"
+            android:layout_width="match_parent"
+            android:layout_height="60dp"
+            android:layout_marginTop="12dp"
+            android:background="@drawable/field_background"
+            android:hint="Password (6+ characters)"
+            android:inputType="textPassword"
+            android:paddingHorizontal="24dp"
+            android:textColor="#FFFFFF"
+            android:textColorHint="#60FFFFFF"
+            android:textSize="15sp" />
 
-        android:textColor="#1A1333"
-        app:cornerRadius="30dp"
-        app:backgroundTint="#FFD600"/>
+        <com.google.android.material.button.MaterialButton
+            android:id="@+id/btnRegister"
+            android:layout_width="match_parent"
+            android:layout_height="65dp"
+            android:layout_marginTop="32dp"
+            android:background="@drawable/button_background"
+            android:fontFamily="sans-serif-black"
+            android:text="JOIN THE CREW"
+            android:textColor="#FFFFFF"
+            android:textSize="18sp"
+            app:backgroundTint="@null"
+            app:cornerRadius="32dp" />
 
-    <TextView
-        android:id="@+id/tvBackToLogin"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:text="Already have an account? Log In"
-        android:textColor="#FFD600"
-        android:textStyle="bold"
-        android:layout_marginTop="20dp" />
+        <TextView
+            android:id="@+id/tvBackToLogin"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="20dp"
+            android:fontFamily="sans-serif-black"
+            android:letterSpacing="0.1"
+            android:padding="12dp"
+            android:text="ALREADY AN ARTIST? LOG IN"
+            android:textColor="#D946EF"
+            android:textSize="12sp" />
 
-</LinearLayout>
+    </LinearLayout>
+
+</androidx.constraintlayout.widget.ConstraintLayout>

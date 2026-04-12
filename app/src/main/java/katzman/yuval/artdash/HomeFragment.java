@@ -14,14 +14,11 @@ public class HomeFragment extends Fragment {
     @Nullable
     @Override
     public View onCreateView(@NonNull LayoutInflater inflater, @Nullable ViewGroup container, @Nullable Bundle savedInstanceState) {
-
         View view = inflater.inflate(R.layout.fragment_home, container, false);
-
 
         view.findViewById(R.id.btnFreeDraw).setOnClickListener(v -> {
             navigateToFragment(new FreePlayFragment());
         });
-
 
         view.findViewById(R.id.btnLeaderboardBig).setOnClickListener(v -> {
             navigateToFragment(new GlobalLeaderboardFragment());
@@ -30,10 +27,8 @@ public class HomeFragment extends Fragment {
         return view;
     }
 
-
     private void navigateToFragment(Fragment fragment) {
-        FragmentTransaction transaction = getParentFragmentManager().beginTransaction();
-
+        FragmentTransaction transaction = requireActivity().getSupportFragmentManager().beginTransaction();
 
         transaction.setCustomAnimations(
                 android.R.anim.fade_in,

@@ -1,14 +1,161 @@
 <?xml version="1.0" encoding="utf-8"?>
-<FrameLayout xmlns:android="http://schemas.android.com/apk/res/android"
-    xmlns:tools="http://schemas.android.com/tools"
+<androidx.constraintlayout.widget.ConstraintLayout
+    xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    tools:context=".FreePlayFragment">
+    android:background="#1A1333">
 
-    <!-- TODO: Update blank fragment layout -->
-    <TextView
-        android:layout_width="match_parent"
-        android:layout_height="match_parent"
-        android:text="@string/hello_blank_fragment" />
+    <LinearLayout
+        android:id="@+id/topBar"
+        android:layout_width="0dp"
+        android:layout_height="wrap_content"
+        android:orientation="horizontal"
+        android:padding="24dp"
+        android:gravity="center_vertical"
+        app:layout_constraintTop_toTopOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintEnd_toEndOf="parent">
 
-</FrameLayout>
+        <LinearLayout
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:layout_weight="1"
+            android:orientation="vertical">
+            <TextView
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="MODE"
+                android:textColor="#88FFFFFF"
+                android:textSize="12sp"
+                android:letterSpacing="0.1" />
+            <TextView
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="Free Play"
+                android:textColor="#FFFFFF"
+                android:textSize="20sp"
+                android:textStyle="bold" />
+        </LinearLayout>
+
+        <ImageButton
+            android:id="@+id/btnSaveDrawing"
+            android:layout_width="48dp"
+            android:layout_height="48dp"
+            android:background="@drawable/glass_info_bg"
+            android:padding="8dp"
+            android:src="@android:drawable/ic_menu_save"
+            android:contentDescription="Save drawing to profile"
+            app:tint="#FFD600" />
+    </LinearLayout>
+
+    <FrameLayout
+        android:id="@+id/canvasContainer"
+        android:layout_width="0dp"
+        android:layout_height="0dp"
+        android:layout_marginHorizontal="20dp"
+        android:layout_marginTop="8dp"
+        android:layout_marginBottom="24dp"
+        android:background="@drawable/canvas_rounded_bg"
+        android:elevation="4dp"
+        android:padding="4dp"
+        app:layout_constraintTop_toBottomOf="@id/topBar"
+        app:layout_constraintBottom_toTopOf="@id/bottomToolsCard"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintEnd_toEndOf="parent">
+
+        <katzman.yuval.artdash.DrawingView
+            android:id="@+id/drawingView"
+            android:layout_width="match_parent"
+            android:layout_height="match_parent"
+            android:background="#FFFFFF" />
+    </FrameLayout>
+
+    <androidx.cardview.widget.CardView
+        android:id="@+id/bottomToolsCard"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginBottom="32dp"
+        app:cardBackgroundColor="#2A1F4D"
+        app:cardCornerRadius="100dp"
+        app:cardElevation="15dp"
+        app:layout_constraintBottom_toBottomOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintEnd_toEndOf="parent">
+
+        <LinearLayout
+            android:layout_width="wrap_content"
+            android:layout_height="64dp"
+            android:gravity="center"
+            android:orientation="horizontal"
+            android:paddingHorizontal="12dp">
+
+            <ImageButton
+                android:id="@+id/btnColorWheel"
+                android:layout_width="48dp"
+                android:layout_height="48dp"
+                android:background="@drawable/circle_tool"
+                android:src="@android:drawable/ic_menu_compass"
+                android:contentDescription="Open color picker"
+                app:tint="#FFD600" />
+
+            <SeekBar
+                android:id="@+id/sbBrushSize"
+                android:layout_width="80dp"
+                android:layout_height="48dp"
+                android:max="50"
+                android:progress="10"
+                android:progressTint="#FFD600"
+                android:thumbTint="#FFFFFF"
+                android:contentDescription="Adjust brush size" />
+
+            <ImageButton
+                android:id="@+id/btnUndo"
+                android:layout_width="48dp"
+                android:layout_height="48dp"
+                android:background="?attr/selectableItemBackgroundBorderless"
+                android:src="@android:drawable/ic_menu_revert"
+                android:contentDescription="Undo last action"
+                app:tint="#FFFFFF" />
+
+            <ImageButton
+                android:id="@+id/btnRedo"
+                android:layout_width="48dp"
+                android:layout_height="48dp"
+                android:background="?attr/selectableItemBackgroundBorderless"
+                android:src="@android:drawable/ic_menu_revert"
+                android:rotation="180"
+                android:contentDescription="Redo last action"
+                app:tint="#FFFFFF" />
+
+            <ImageButton
+                android:id="@+id/btnEraser"
+                android:layout_width="48dp"
+                android:layout_height="48dp"
+                android:background="?attr/selectableItemBackgroundBorderless"
+                android:src="@android:drawable/ic_menu_edit"
+                android:contentDescription="Switch to eraser"
+                app:tint="#FFFFFF" />
+
+            <ImageButton
+                android:id="@+id/btnClear"
+                android:layout_width="48dp"
+                android:layout_height="48dp"
+                android:background="?attr/selectableItemBackgroundBorderless"
+                android:src="@android:drawable/ic_menu_delete"
+                android:contentDescription="Clear entire canvas"
+                app:tint="#FF5252" />
+
+            <ImageButton
+                android:id="@+id/btnMute"
+                android:layout_width="48dp"
+                android:layout_height="48dp"
+                android:background="?attr/selectableItemBackgroundBorderless"
+                android:src="@android:drawable/ic_lock_silent_mode_off"
+                android:contentDescription="Mute or unmute music"
+                app:tint="#88FFFFFF" />
+
+        </LinearLayout>
+    </androidx.cardview.widget.CardView>
+
+</androidx.constraintlayout.widget.ConstraintLayout>

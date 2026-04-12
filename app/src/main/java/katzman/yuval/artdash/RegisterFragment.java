@@ -37,53 +37,42 @@ public class RegisterFragment extends Fragment {
 
         tvBackToLogin.setOnClickListener(v -> {
             if (getActivity() != null) {
-                getActivity().getSupportFragmentManager().popBackStack();
+                getParentFragmentManager().popBackStack();
             }
         });
 
-        btnRegister.setOnClickListener(v -> {
-            String email = etEmail.getText().toString().trim();
-            String password = etPassword.getText().toString().trim();
-            String name = etFullName.getText().toString().trim();
-
-            if (name.isEmpty()) {
-                etFullName.setError("Full name is required");
-                etFullName.requestFocus();
-                return;
-            }
-
-            if (email.isEmpty()) {
-                etEmail.setError("Email is required");
-                etEmail.requestFocus();
-                return;
-            }
-
-            if (password.isEmpty()) {
-                etPassword.setError("Password is required");
-                etPassword.requestFocus();
-                return;
-            }
-
-            if (password.length() < 6) {
-                etPassword.setError("Password must be at least 6 characters");
-                etPassword.requestFocus();
-                return;
-            }
-
-            mAuth.createUserWithEmailAndPassword(email, password)
-                    .addOnCompleteListener(task -> {
-                        if (task.isSuccessful()) {
-                            Toast.makeText(getContext(), "Registration Successful!", Toast.LENGTH_SHORT).show();
-                            Intent intent = new Intent(getActivity(), MainActivity.class);
-                            startActivity(intent);
-                            getActivity().finish();
-                        } else {
-                            String errorMessage = task.getException().getMessage();
-                            Toast.makeText(getContext(), "Registration Failed: " + errorMessage, Toast.LENGTH_LONG).show();
-                        }
-                    });
-        });
+        btnRegister.setOnClickListener(v -> registerUser());
 
         return view;
+    }
+
+    private void registerUser() {
+        String email = etEmail.getText().toString().trim();
+        String password = etPassword.getText().toString().trim();
+        String name = etFullName.getText().toString().trim();
+
+        if (name.isEmpty() || email.isEmpty() || password.isEmpty()) {
+            Toast.makeText(getContext(), "Please fill all fields", Toast.LENGTH_SHORT).show();
+            return;
+        }
+
+        if (password.length() < 6) {
+            etPassword.setError("Password must be at least 6 characters");
+            return;
+        }
+
+        mAuth.createUserWithEmailAndPassword(email, password)
+                .addOnCompleteListener(task -> {
+                    if (isAdded() && getActivity() != null) {
+                        if (task.isSuccessful()) {
+                            Toast.makeText(getContext(), "Registration Successful!", Toast.LENGTH_SHORT).show();
+                            startActivity(new Intent(getActivity(), MainActivity.class));
+                            getActivity().finish();
+                        } else {
+                            String error = task.getException() != null ? task.getException().getMessage() : "Failed";
+                            Toast.makeText(getContext(), "Error: " + error, Toast.LENGTH_LONG).show();
+                        }
+                    }
+                });
     }
 }

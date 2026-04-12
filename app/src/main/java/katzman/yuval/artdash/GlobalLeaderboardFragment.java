@@ -4,8 +4,6 @@ import android.os.Bundle;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
-import android.view.animation.AnimationUtils;
-import android.view.animation.LayoutAnimationController;
 import android.widget.ProgressBar;
 import android.widget.Toast;
 
@@ -40,26 +38,25 @@ public class GlobalLeaderboardFragment extends Fragment {
 
         rvGlobal.setLayoutManager(new LinearLayoutManager(getContext()));
 
-        // הוספת אנימציית כניסה לרשימה (שורות מחליקות פנימה)
-        LayoutAnimationController animation = AnimationUtils.loadLayoutAnimation(getContext(), android.R.anim.slide_in_left);
-        rvGlobal.setLayoutAnimation(animation);
-
         loadData();
 
         return view;
     }
 
     private void loadData() {
-        pbLoader.setVisibility(View.VISIBLE);
-
+        if (pbLoader != null) {
+            pbLoader.setVisibility(View.VISIBLE);
+        }
 
         db.collection("User")
                 .orderBy("totalStars", Query.Direction.DESCENDING)
                 .limit(50)
                 .addSnapshotListener((value, error) -> {
-                    if (getActivity() == null) return;
+                    if (!isAdded() || getActivity() == null) return;
 
-                    pbLoader.setVisibility(View.GONE);
+                    if (pbLoader != null) {
+                        pbLoader.setVisibility(View.GONE);
+                    }
 
                     if (error != null) {
                         Toast.makeText(getContext(), "Error loading rankings", Toast.LENGTH_SHORT).show();
@@ -70,8 +67,9 @@ public class GlobalLeaderboardFragment extends Fragment {
                         usersList = value.getDocuments();
                         adapter = new GlobalLeaderboardAdapter(usersList);
                         rvGlobal.setAdapter(adapter);
-                        // מפעיל את האנימציה של השורות
-                        rvGlobal.scheduleLayoutAnimation();
+
+                        rvGlobal.setAlpha(0f);
+                        rvGlobal.animate().alpha(1f).setDuration(500).start();
                     }
                 });
     }

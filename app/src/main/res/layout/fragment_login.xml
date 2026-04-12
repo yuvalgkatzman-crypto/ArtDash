@@ -1,92 +1,90 @@
 <?xml version="1.0" encoding="utf-8"?>
-<androidx.constraintlayout.widget.ConstraintLayout
-    xmlns:android="http://schemas.android.com/apk/res/android"
+<androidx.constraintlayout.widget.ConstraintLayout xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto"
-    xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    android:background="@drawable/main_gradient_bg"
-    android:padding="32dp">
+    android:background="#050510">
 
-    <ImageView
-        android:id="@+id/ivLogo"
-        android:layout_width="0dp"
-        android:layout_height="220dp"
-        android:layout_marginTop="20dp"
-        android:src="@drawable/textlogo"
-        android:adjustViewBounds="true"
-        android:scaleType="centerInside"
-        app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toTopOf="parent" />
-
-    <EditText
-        android:id="@+id/etEmail"
+    <LinearLayout
         android:layout_width="match_parent"
-        android:layout_height="60dp"
-        android:layout_marginTop="16dp"
-        android:background="@drawable/field_background"
-        android:hint="Email"
-        android:inputType="textEmailAddress"
-        android:paddingStart="20dp"
-        android:paddingEnd="20dp"
-        android:textColor="#FFFFFF"
-        android:textColorHint="#99FFFFFF"
-        android:textSize="16sp"
-        app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toBottomOf="@+id/ivLogo" />
-
-    <EditText
-        android:id="@+id/etPassword"
-        android:layout_width="match_parent"
-        android:layout_height="60dp"
-        android:layout_marginTop="16dp"
-        android:background="@drawable/field_background"
-        android:hint="Password"
-        android:inputType="textPassword"
-        android:paddingStart="20dp"
-        android:paddingEnd="20dp"
-        android:textColor="#FFFFFF"
-        android:textColorHint="#99FFFFFF"
-        android:textSize="16sp"
-        app:layout_constraintTop_toBottomOf="@id/etEmail" />
-
-    <TextView
-        android:id="@+id/tvForgotPassword"
-        android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:layout_marginTop="12dp"
-        android:text="Forgot Password?"
-        android:textColor="#FFD600"
-        android:textSize="14sp"
-        android:textStyle="bold"
-        app:layout_constraintEnd_toEndOf="@id/etPassword"
-        app:layout_constraintTop_toBottomOf="@id/etPassword" />
-
-    <com.google.android.material.button.MaterialButton
-        android:id="@+id/btnLogin"
-        android:layout_width="match_parent"
-        android:layout_height="60dp"
-        android:layout_marginTop="40dp"
-        android:text="LOGIN"
-        android:textSize="18sp"
-        android:textStyle="bold"
-        android:textColor="#1A1333"
-        app:backgroundTint="@null"
-        android:background="@drawable/button_background"
-        app:layout_constraintTop_toBottomOf="@id/tvForgotPassword" />
-
-    <TextView
-        android:id="@+id/tvGoToRegister"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:layout_marginBottom="32dp"
-        android:text="Don't have an account? Sign Up"
-        android:textColor="#88FFFFFF"
-        android:textSize="14sp"
+        android:gravity="center_horizontal"
+        android:orientation="vertical"
+        android:paddingHorizontal="32dp"
         app:layout_constraintBottom_toBottomOf="parent"
-        app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintHorizontal_bias="0.496"
-        app:layout_constraintStart_toStartOf="parent" />
+        app:layout_constraintTop_toTopOf="parent"
+        app:layout_constraintVertical_bias="0.5">
+        <ImageView
+            android:id="@+id/ivLogo"
+            android:layout_width="match_parent"
+            android:layout_height="180dp"
+            android:scaleType="centerInside"
+            android:src="@drawable/artlogo"
+            android:layout_marginBottom="12dp"/>
+
+        <EditText
+            android:id="@+id/etEmail"
+            android:layout_width="match_parent"
+            android:layout_height="60dp"
+            android:background="@drawable/field_background"
+            android:hint="Artist Email"
+        android:text="yuvalg.katzman@gmail.com"
+            android:inputType="textEmailAddress"
+            android:paddingHorizontal="24dp"
+            android:textColor="#FFFFFF"
+            android:textColorHint="#60FFFFFF"
+            android:textSize="15sp" />
+
+        <EditText
+            android:id="@+id/etPassword"
+            android:layout_width="match_parent"
+            android:layout_height="60dp"
+            android:layout_marginTop="16dp"
+            android:background="@drawable/field_background"
+            android:hint="Secret Password"
+            android:text="Yuval123!"
+            android:inputType="textPassword"
+            android:paddingHorizontal="24dp"
+            android:textColor="#FFFFFF"
+            android:textColorHint="#60FFFFFF"
+            android:textSize="15sp" />
+
+        <TextView
+            android:id="@+id/tvForgotPassword"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_gravity="end"
+            android:layout_marginTop="12dp"
+            android:fontFamily="sans-serif-medium"
+            android:text="Forgot?"
+            android:textColor="#8B5CF6"
+            android:textSize="14sp" />
+
+        <com.google.android.material.button.MaterialButton
+            android:id="@+id/btnLogin"
+            android:layout_width="match_parent"
+            android:layout_height="65dp"
+            android:layout_marginTop="32dp"
+            android:background="@drawable/button_background"
+            android:fontFamily="sans-serif-black"
+            android:text="ENTER CANVAS"
+            android:textColor="#FFFFFF"
+            android:textSize="18sp"
+            app:backgroundTint="@null"
+            app:cornerRadius="32dp" />
+
+        <TextView
+            android:id="@+id/tvGoToRegister"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="24dp"
+            android:fontFamily="sans-serif-black"
+            android:letterSpacing="0.1"
+            android:padding="12dp"
+            android:text="NOT A MEMBER? JOIN THE CREW"
+            android:textColor="#D946EF"
+            android:textSize="12sp" />
+
+    </LinearLayout>
 
 </androidx.constraintlayout.widget.ConstraintLayout>

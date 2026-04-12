@@ -194,22 +194,31 @@ public class ProfileFragment extends Fragment {
 
     private void updateTopPicks(List<DocumentSnapshot> docs) {
         ivTop1.setImageDrawable(null); ivTop2.setImageDrawable(null); ivTop3.setImageDrawable(null);
+        ivTop1.setOnClickListener(null); ivTop2.setOnClickListener(null); ivTop3.setOnClickListener(null);
         int count = 1;
         for (DocumentSnapshot doc : docs) {
             Boolean isTop = doc.getBoolean("isTopPick");
             if (isTop != null && isTop) {
                 Bitmap bitmap = decodeBase64ToBitmap(doc.getString("imageData"));
-                if (count == 1) setupTopImage(ivTop1, bitmap);
-                else if (count == 2) setupTopImage(ivTop2, bitmap);
-                else if (count == 3) setupTopImage(ivTop3, bitmap);
+                if (count == 1) setupTopImage(ivTop1, bitmap, doc);
+                else if (count == 2) setupTopImage(ivTop2, bitmap, doc);
+                else if (count == 3) setupTopImage(ivTop3, bitmap, doc);
                 count++;
             }
         }
     }
 
-    private void setupTopImage(ImageView iv, Bitmap bitmap) {
+    private void setupTopImage(ImageView iv, Bitmap bitmap, DocumentSnapshot doc) {
         iv.setImageBitmap(bitmap);
-        iv.setOnClickListener(v -> showFullScreenImage(bitmap));
+        iv.setOnClickListener(v -> {
+            new AlertDialog.Builder(getContext())
+                    .setTitle("Hall of Fame")
+                    .setMessage("What would you like to do?")
+                    .setPositiveButton("Remove from Top 3", (d, w) -> doc.getReference().update("isTopPick", false))
+                    .setNeutralButton("View Full", (d, w) -> showFullScreenImage(bitmap))
+                    .setNegativeButton("Cancel", null)
+                    .show();
+        });
     }
 
     private void showFullScreenImage(Bitmap bitmap) {
@@ -225,18 +234,57 @@ public class ProfileFragment extends Fragment {
     private void showImageDetailDialog(DocumentSnapshot doc, Bitmap bitmap) {
         AlertDialog.Builder builder = new AlertDialog.Builder(getContext());
         View view = getLayoutInflater().inflate(R.layout.dialog_image_detail, null);
+
         ImageView ivLarge = view.findViewById(R.id.ivLargeImage);
         Button btnToggleTop = view.findViewById(R.id.btnToggleTop);
+        Button btnSaveLocal = view.findViewById(R.id.btnSaveLocal);
+
         ivLarge.setImageBitmap(bitmap);
-        ivLarge.setOnClickListener(v -> showFullScreenImage(bitmap));
+
         boolean isTop = doc.getBoolean("isTopPick") != null && doc.getBoolean("isTopPick");
         btnToggleTop.setText(isTop ? "Remove from Hall of Fame" : "Add to Hall of Fame");
+
         AlertDialog dialog = builder.setView(view).create();
+
         btnToggleTop.setOnClickListener(v -> {
-            doc.getReference().update("isTopPick", !isTop);
+            if (!isTop) {
+                db.collection("User").document(currentUserId).collection("myDrawings")
+                        .whereEqualTo("isTopPick", true)
+                        .get()
+                        .addOnSuccessListener(querySnapshot -> {
+                            if (querySnapshot.size() >= 3) {
+                                Toast.makeText(getContext(), "Hall of Fame is full!", Toast.LENGTH_SHORT).show();
+                            } else {
+                                doc.getReference().update("isTopPick", true);
+                                dialog.dismiss();
+                            }
+                        });
+            } else {
+                doc.getReference().update("isTopPick", false);
+                dialog.dismiss();
+            }
+        });
+
+        btnSaveLocal.setOnClickListener(v -> {
+            saveImageToDevice(bitmap);
             dialog.dismiss();
         });
+
         dialog.show();
+    }
+
+    private void saveImageToDevice(Bitmap bitmap) {
+        String savedImageURL = MediaStore.Images.Media.insertImage(
+                getContext().getContentResolver(),
+                bitmap,
+                "ArtDash_" + System.currentTimeMillis(),
+                "Drawing from ArtDash"
+        );
+        if (savedImageURL != null) {
+            Toast.makeText(getContext(), "Saved to Gallery!", Toast.LENGTH_SHORT).show();
+        } else {
+            Toast.makeText(getContext(), "Save failed", Toast.LENGTH_SHORT).show();
+        }
     }
 
     private Bitmap decodeBase64ToBitmap(String base64Str) {
