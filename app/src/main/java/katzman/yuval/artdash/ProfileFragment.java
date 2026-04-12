@@ -9,7 +9,6 @@ import android.graphics.BitmapFactory;
 import android.net.Uri;
 import android.os.Bundle;
 import android.provider.MediaStore;
-import android.text.InputFilter;
 import android.util.Base64;
 import android.view.LayoutInflater;
 import android.view.View;
@@ -42,7 +41,7 @@ import java.util.Map;
 
 public class ProfileFragment extends Fragment {
 
-    private TextView tvUsername, tvBio;
+    private TextView tvUsername, tvBio, tvTotalStars, tvDrawingCount;
     private ImageView ivProfilePicture, ivTop1, ivTop2, ivTop3;
     private RecyclerView rvMyGallery;
     private FirebaseFirestore db = FirebaseFirestore.getInstance();
@@ -65,6 +64,8 @@ public class ProfileFragment extends Fragment {
 
         tvUsername = view.findViewById(R.id.tvUsername);
         tvBio = view.findViewById(R.id.tvBio);
+        tvTotalStars = view.findViewById(R.id.tvTotalStars);
+        tvDrawingCount = view.findViewById(R.id.tvDrawingCount);
         ivProfilePicture = view.findViewById(R.id.ivProfilePicture);
         ivTop1 = view.findViewById(R.id.ivTop1);
         ivTop2 = view.findViewById(R.id.ivTop2);
@@ -75,7 +76,6 @@ public class ProfileFragment extends Fragment {
         rvMyGallery.setLayoutManager(new GridLayoutManager(getContext(), 3));
         currentUserId = FirebaseAuth.getInstance().getUid();
 
-        // טעינה מיידית מהזיכרון המקומי (לפני ה-Firebase)
         loadLocalData();
 
         if (currentUserId != null) {
@@ -95,6 +95,7 @@ public class ProfileFragment extends Fragment {
     private void loadLocalData() {
         tvUsername.setText(prefs.getString("name", "ARTIST NAME"));
         tvBio.setText(prefs.getString("bio", "BIO HERE"));
+        tvTotalStars.setText(String.valueOf(prefs.getInt("totalStars", 0)));
         String imageBase64 = prefs.getString("profileImage", null);
         if (imageBase64 != null) {
             ivProfilePicture.setImageBitmap(decodeBase64ToBitmap(imageBase64));
@@ -107,17 +108,21 @@ public class ProfileFragment extends Fragment {
                 String name = doc.getString("name");
                 String bio = doc.getString("bio") != null ? doc.getString("bio") : "";
                 String profileImage = doc.getString("profileImage");
+                Double stars = doc.getDouble("totalStars");
+                int starsInt = (stars != null) ? stars.intValue() : 0;
 
                 tvUsername.setText(name);
                 tvBio.setText(bio);
+                tvTotalStars.setText(String.valueOf(starsInt));
+
                 if (profileImage != null) {
                     ivProfilePicture.setImageBitmap(decodeBase64ToBitmap(profileImage));
                 }
 
-                // שמירה לזיכרון מקומי כדי שיהיה זמין למעבר בין דפים
                 SharedPreferences.Editor editor = prefs.edit();
                 editor.putString("name", name);
                 editor.putString("bio", bio);
+                editor.putInt("totalStars", starsInt);
                 editor.putString("profileImage", profileImage);
                 editor.apply();
             }
@@ -134,10 +139,7 @@ public class ProfileFragment extends Fragment {
             bitmap.compress(Bitmap.CompressFormat.JPEG, 70, baos);
             String base64Image = Base64.encodeToString(baos.toByteArray(), Base64.DEFAULT);
 
-            // עדכון Firestore
             db.collection("User").document(currentUserId).update("profileImage", base64Image);
-
-            // עדכון מקומי מהיר
             prefs.edit().putString("profileImage", base64Image).apply();
 
         } catch (Exception e) {
@@ -153,10 +155,12 @@ public class ProfileFragment extends Fragment {
         layout.setPadding(50, 40, 50, 10);
 
         final EditText etName = new EditText(getContext());
+        etName.setHint("Name");
         etName.setText(tvUsername.getText().toString());
         layout.addView(etName);
 
         final EditText etBio = new EditText(getContext());
+        etBio.setHint("Bio");
         etBio.setText(tvBio.getText().toString());
         layout.addView(etBio);
 
@@ -165,17 +169,12 @@ public class ProfileFragment extends Fragment {
             String newName = etName.getText().toString();
             String newBio = etBio.getText().toString();
 
-            tvUsername.setText(newName);
-            tvBio.setText(newBio);
-
             Map<String, Object> update = new HashMap<>();
             update.put("name", newName);
             update.put("bio", newBio);
             db.collection("User").document(currentUserId).update(update);
-
-            // שמירה מקומית מיידית
-            prefs.edit().putString("name", newName).putString("bio", newBio).apply();
         });
+        builder.setNegativeButton("Cancel", null);
         builder.show();
     }
 
@@ -185,6 +184,7 @@ public class ProfileFragment extends Fragment {
                 .addSnapshotListener((value, error) -> {
                     if (value != null) {
                         List<DocumentSnapshot> docs = value.getDocuments();
+                        tvDrawingCount.setText(String.valueOf(docs.size()));
                         GalleryAdapter adapter = new GalleryAdapter(docs, this::showImageDetailDialog);
                         rvMyGallery.setAdapter(adapter);
                         updateTopPicks(docs);
@@ -230,7 +230,7 @@ public class ProfileFragment extends Fragment {
         ivLarge.setImageBitmap(bitmap);
         ivLarge.setOnClickListener(v -> showFullScreenImage(bitmap));
         boolean isTop = doc.getBoolean("isTopPick") != null && doc.getBoolean("isTopPick");
-        btnToggleTop.setText(isTop ? "Remove from Top 3" : "Add to Top 3");
+        btnToggleTop.setText(isTop ? "Remove from Hall of Fame" : "Add to Hall of Fame");
         AlertDialog dialog = builder.setView(view).create();
         btnToggleTop.setOnClickListener(v -> {
             doc.getReference().update("isTopPick", !isTop);

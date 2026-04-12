@@ -1,31 +1,49 @@
 package katzman.yuval.artdash;
 
 import android.os.Bundle;
-import androidx.annotation.NonNull;
-import androidx.annotation.Nullable;
-import androidx.fragment.app.Fragment;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import androidx.annotation.NonNull;
+import androidx.annotation.Nullable;
+import androidx.fragment.app.Fragment;
+import androidx.fragment.app.FragmentTransaction;
 
 public class HomeFragment extends Fragment {
 
-    public HomeFragment() {
-        // Required empty public constructor
+    @Nullable
+    @Override
+    public View onCreateView(@NonNull LayoutInflater inflater, @Nullable ViewGroup container, @Nullable Bundle savedInstanceState) {
+
+        View view = inflater.inflate(R.layout.fragment_home, container, false);
+
+
+        view.findViewById(R.id.btnFreeDraw).setOnClickListener(v -> {
+            navigateToFragment(new FreePlayFragment());
+        });
+
+
+        view.findViewById(R.id.btnLeaderboardBig).setOnClickListener(v -> {
+            navigateToFragment(new GlobalLeaderboardFragment());
+        });
+
+        return view;
     }
 
-    @Override
-    public View onCreateView(LayoutInflater inflater, ViewGroup container,
-                             Bundle savedInstanceState) {
 
-        return inflater.inflate(R.layout.fragment_home, container, false);
-    }
+    private void navigateToFragment(Fragment fragment) {
+        FragmentTransaction transaction = getParentFragmentManager().beginTransaction();
 
-    @Override
-    public void onResume() {
-        super.onResume();
-        if (getActivity() instanceof MainActivity) {
-            ((MainActivity) getActivity()).setBottomNavigationVisibility(View.VISIBLE);
-        }
+
+        transaction.setCustomAnimations(
+                android.R.anim.fade_in,
+                android.R.anim.fade_out,
+                android.R.anim.fade_in,
+                android.R.anim.fade_out
+        );
+
+        transaction.replace(R.id.mainFragmentContainer, fragment);
+        transaction.addToBackStack(null);
+        transaction.commit();
     }
 }

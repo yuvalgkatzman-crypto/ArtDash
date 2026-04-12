@@ -2,12 +2,14 @@ package katzman.yuval.artdash;
 
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
+import android.media.MediaPlayer;
 import android.os.Bundle;
 import android.os.CountDownTimer;
 import android.util.Base64;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.ImageButton;
 import android.widget.ImageView;
 import android.widget.RatingBar;
 import android.widget.TextView;
@@ -15,11 +17,28 @@ import android.widget.Toast;
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.fragment.app.Fragment;
+
+import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.firestore.DocumentSnapshot;
 import com.google.firebase.firestore.FieldValue;
 import com.google.firebase.firestore.FirebaseFirestore;
+import com.google.firebase.firestore.SetOptions;
+
+import org.json.JSONArray;
+import org.json.JSONException;
+import org.json.JSONObject;
+
+import java.io.IOException;
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
+
+import okhttp3.Call;
+import okhttp3.Callback;
+import okhttp3.OkHttpClient;
+import okhttp3.Request;
+import okhttp3.Response;
 
 public class VotingFragment extends Fragment {
 
@@ -31,6 +50,8 @@ public class VotingFragment extends Fragment {
     private int currentDrawingIndex = 0;
     private String roomId;
     private CountDownTimer voteTimer;
+    private MediaPlayer mediaPlayer;
+    private boolean isMuted = false;
 
     @Nullable
     @Override
@@ -44,17 +65,71 @@ public class VotingFragment extends Fragment {
 
         if (getArguments() != null) {
             roomId = getArguments().getString("roomId");
-            loadRoomTopic(); // קריאה חדשה להבאת הנושא
+            loadRoomTopic();
             loadAllSubmissions();
         }
+
+        ImageButton btnMute = view.findViewById(R.id.btnMute);
+        btnMute.setOnClickListener(v -> {
+            if (mediaPlayer != null) {
+                if (isMuted) {
+                    mediaPlayer.setVolume(1.0f, 1.0f);
+                    btnMute.setImageResource(android.R.drawable.ic_lock_silent_mode_off);
+                } else {
+                    mediaPlayer.setVolume(0, 0);
+                    btnMute.setImageResource(android.R.drawable.ic_lock_silent_mode);
+                }
+                isMuted = !isMuted;
+            }
+        });
+
+        fetchMusicAndPlay();
 
         return view;
     }
 
-    // פונקציה חדשה שמושכת את הנושא מהחדר
+    private void fetchMusicAndPlay() {
+        OkHttpClient client = new OkHttpClient();
+        String url = "https://itunes.apple.com/search?term=chill&limit=1&entity=musicTrack";
+
+        Request request = new Request.Builder().url(url).build();
+        client.newCall(request).enqueue(new Callback() {
+            @Override
+            public void onFailure(Call call, IOException e) { e.printStackTrace(); }
+
+            @Override
+            public void onResponse(Call call, Response response) throws IOException {
+                if (response.isSuccessful()) {
+                    try {
+                        String jsonData = response.body().string();
+                        JSONObject jsonObject = new JSONObject(jsonData);
+                        JSONArray results = jsonObject.getJSONArray("results");
+                        if (results.length() > 0) {
+                            String audioUrl = results.getJSONObject(0).getString("previewUrl");
+                            if (getActivity() != null) {
+                                getActivity().runOnUiThread(() -> playMusic(audioUrl));
+                            }
+                        }
+                    } catch (JSONException e) { e.printStackTrace(); }
+                }
+            }
+        });
+    }
+
+    private void playMusic(String url) {
+        try {
+            mediaPlayer = new MediaPlayer();
+            mediaPlayer.setDataSource(url);
+            mediaPlayer.prepareAsync();
+            mediaPlayer.setOnPreparedListener(mp -> {
+                mp.start();
+                mp.setLooping(true);
+            });
+        } catch (IOException e) { e.printStackTrace(); }
+    }
+
     private void loadRoomTopic() {
         if (roomId == null) return;
-
         db.collection("rooms").document(roomId).get()
                 .addOnSuccessListener(documentSnapshot -> {
                     if (documentSnapshot.exists()) {
@@ -102,7 +177,6 @@ public class VotingFragment extends Fragment {
                     ivVotedDrawing.setImageResource(android.R.drawable.ic_menu_report_image);
                 }
             }
-
             startVotingTimer();
         } else {
             if (voteTimer != null) voteTimer.cancel();
@@ -144,14 +218,24 @@ public class VotingFragment extends Fragment {
         float rating = ratingBar.getRating();
         DocumentSnapshot currentDoc = submissions.get(currentDrawingIndex);
         String playerDocId = currentDoc.getId();
+        String artistId = currentDoc.getString("userId");
 
         db.collection("rooms").document(roomId)
                 .collection("submissions").document(playerDocId)
-                .update("totalScore", FieldValue.increment(rating))
-                .addOnCompleteListener(task -> {
-                    currentDrawingIndex++;
-                    showNextDrawing();
-                });
+                .update("totalScore", FieldValue.increment(rating));
+
+        if (artistId != null) {
+            db.collection("User").document(artistId)
+                    .update("totalStars", FieldValue.increment(rating))
+                    .addOnFailureListener(e -> {
+                        Map<String, Object> data = new HashMap<>();
+                        data.put("totalStars", rating);
+                        db.collection("User").document(artistId).set(data, SetOptions.merge());
+                    });
+        }
+
+        currentDrawingIndex++;
+        showNextDrawing();
     }
 
     @Override
@@ -170,5 +254,10 @@ public class VotingFragment extends Fragment {
     public void onDestroyView() {
         super.onDestroyView();
         if (voteTimer != null) voteTimer.cancel();
+        if (mediaPlayer != null) {
+            mediaPlayer.stop();
+            mediaPlayer.release();
+            mediaPlayer = null;
+        }
     }
 }

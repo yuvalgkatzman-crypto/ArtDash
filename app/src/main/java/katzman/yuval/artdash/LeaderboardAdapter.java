@@ -38,19 +38,27 @@ public class LeaderboardAdapter extends RecyclerView.Adapter<LeaderboardAdapter.
         DocumentSnapshot doc = playersList.get(position);
 
         holder.tvRank.setText("#" + (position + 1));
-        String playerName = doc.getString("player");
-        holder.tvPlayerName.setText(playerName != null ? playerName : "Artist " + (position + 1));
 
+        // תיקון: שינינו מ-"player" ל-"userName" כדי שיתאים למה ששלחנו מה-PaintFragment
+        String playerName = doc.getString("userName");
+        holder.tvPlayerName.setText(playerName != null && !playerName.isEmpty() ? playerName : "Artist " + (position + 1));
+
+        // הצגת הניקוד כמספר שלם
         Double score = doc.getDouble("totalScore");
-        if (score == null) score = 0.0;
-        holder.tvScoreValue.setText(String.valueOf(score));
+        int finalScore = (score != null) ? score.intValue() : 0;
+        holder.tvScoreValue.setText(String.valueOf(finalScore));
 
         String base64Image = doc.getString("imageData");
         if (base64Image != null) {
-            byte[] decodedString = Base64.decode(base64Image, Base64.DEFAULT);
-            Bitmap decodedByte = BitmapFactory.decodeByteArray(decodedString, 0, decodedString.length);
-            holder.ivSmallDrawing.setImageBitmap(decodedByte);
+            try {
+                byte[] decodedString = Base64.decode(base64Image, Base64.DEFAULT);
+                Bitmap decodedByte = BitmapFactory.decodeByteArray(decodedString, 0, decodedString.length);
+                holder.ivSmallDrawing.setImageBitmap(decodedByte);
+            } catch (Exception e) {
+                holder.ivSmallDrawing.setImageResource(android.R.drawable.ic_menu_report_image);
+            }
         }
+
 
         if (position == 0) {
             holder.tvWinnerBadge.setVisibility(View.VISIBLE);

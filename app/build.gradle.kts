@@ -52,6 +52,7 @@ dependencies {
     implementation("nl.dionsegijn:konfetti-xml:2.0.2")
     implementation ("com.google.firebase:firebase-firestore")
     implementation("androidx.viewpager2:viewpager2:1.1.0")
+    implementation("com.squareup.okhttp3:okhttp:4.10.0")
 
 
 }
