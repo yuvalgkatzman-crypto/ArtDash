@@ -169,7 +169,7 @@ public class FreePlayFragment extends Fragment {
             String userId = FirebaseAuth.getInstance().getCurrentUser().getUid();
 
             db.collection("User").document(userId)
-                    .update("profileImage", imageString)
+                    .update("myDrawings", imageString)
                     .addOnSuccessListener(aVoid -> {
                         saveToUserGallery(userId, imageString);
                         Toast.makeText(getContext(), "Masterpiece saved!", Toast.LENGTH_SHORT).show();
