@@ -115,7 +115,7 @@ public class DrawingView extends View {
         }
     }
 
-    // פונקציית ניקוי מסך - הפתרון לשגיאה ב-Fragment
+
     public void clearCanvas() {
         paths.clear();
         paints.clear();

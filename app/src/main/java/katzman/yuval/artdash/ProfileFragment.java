@@ -179,9 +179,11 @@ public class ProfileFragment extends Fragment {
     }
 
     private void loadUserGallery() {
+        if (currentUserId == null) return;
         db.collection("User").document(currentUserId).collection("myDrawings")
                 .orderBy("timestamp", Query.Direction.DESCENDING)
                 .addSnapshotListener((value, error) -> {
+                    if (error != null) return;
                     if (value != null) {
                         List<DocumentSnapshot> docs = value.getDocuments();
                         tvDrawingCount.setText(String.valueOf(docs.size()));
@@ -238,6 +240,7 @@ public class ProfileFragment extends Fragment {
         ImageView ivLarge = view.findViewById(R.id.ivLargeImage);
         Button btnToggleTop = view.findViewById(R.id.btnToggleTop);
         Button btnSaveLocal = view.findViewById(R.id.btnSaveLocal);
+        Button btnDeleteDrawing = view.findViewById(R.id.btnDeleteDrawing);
 
         ivLarge.setImageBitmap(bitmap);
 
@@ -270,7 +273,31 @@ public class ProfileFragment extends Fragment {
             dialog.dismiss();
         });
 
+        if (btnDeleteDrawing != null) {
+            btnDeleteDrawing.setOnClickListener(v -> {
+                new AlertDialog.Builder(getContext())
+                        .setTitle("Delete Drawing")
+                        .setMessage("Are you sure you want to delete this drawing? This action cannot be undone.")
+                        .setPositiveButton("Delete", (d, w) -> {
+                            deleteDrawing(doc);
+                            dialog.dismiss();
+                        })
+                        .setNegativeButton("Cancel", null)
+                        .show();
+            });
+        }
+
         dialog.show();
+    }
+
+    private void deleteDrawing(DocumentSnapshot doc) {
+        doc.getReference().delete()
+                .addOnSuccessListener(aVoid -> {
+                    Toast.makeText(getContext(), "Drawing deleted successfully", Toast.LENGTH_SHORT).show();
+                })
+                .addOnFailureListener(e -> {
+                    Toast.makeText(getContext(), "Failed to delete drawing", Toast.LENGTH_SHORT).show();
+                });
     }
 
     private void saveImageToDevice(Bitmap bitmap) {
@@ -293,5 +320,11 @@ public class ProfileFragment extends Fragment {
             byte[] decodedBytes = Base64.decode(base64Str, Base64.DEFAULT);
             return BitmapFactory.decodeByteArray(decodedBytes, 0, decodedBytes.length);
         } catch (Exception e) { return null; }
+    }
+
+    @Override
+    public void onResume() {
+        super.onResume();
+        loadUserGallery();
     }
 }

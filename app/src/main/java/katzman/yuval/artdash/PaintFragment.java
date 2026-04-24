@@ -24,7 +24,8 @@ import androidx.fragment.app.Fragment;
 import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.firestore.FieldValue;
 import com.google.firebase.firestore.FirebaseFirestore;
-
+import com.skydoves.colorpickerview.ColorPickerDialog;
+import com.skydoves.colorpickerview.listeners.ColorEnvelopeListener;
 import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
@@ -144,7 +145,7 @@ public class PaintFragment extends Fragment {
 
         v.findViewById(R.id.btnColorWheel).setOnClickListener(view -> openColorPickerDialog());
 
-        // לוגיקה לכפתור ההשתקה
+
         ImageButton btnMute = v.findViewById(R.id.btnMute);
         btnMute.setOnClickListener(view -> {
             if (mediaPlayer != null) {
@@ -173,22 +174,24 @@ public class PaintFragment extends Fragment {
     }
 
     private void openColorPickerDialog() {
-        AmbilWarnaDialog colorPicker = new AmbilWarnaDialog(getContext(), Color.BLACK, new AmbilWarnaDialog.OnAmbilWarnaListener() {
-            @Override
-            public void onCancel(AmbilWarnaDialog dialog) {}
+        new ColorPickerDialog.Builder(getContext())
+                .setTitle("Choose Color")
+                .setPreferenceName("MyColorPicker")
+                .setPositiveButton("Confirm", (ColorEnvelopeListener) (envelope, fromUser) -> {
+                    int color = envelope.getColor(); // מקבל את הצבע שנבחר
 
-            @Override
-            public void onOk(AmbilWarnaDialog dialog, int color) {
-                drawingView.setEraserMode(false);
-                drawingView.setColor(color);
+                    drawingView.setEraserMode(false);
+                    drawingView.setColor(color);
 
-                ImageButton colorButton = (ImageButton) getView().findViewById(R.id.btnColorWheel);
-                if (colorButton != null) {
-                    colorButton.setImageTintList(ColorStateList.valueOf(color));
-                }
-            }
-        });
-        colorPicker.show();
+                    ImageButton colorButton = (ImageButton) getView().findViewById(R.id.btnColorWheel);
+                    if (colorButton != null) {
+                        colorButton.setImageTintList(ColorStateList.valueOf(color));
+                    }
+                })
+                .setNegativeButton("Cancel", (dialogInterface, i) -> dialogInterface.dismiss())
+                .attachAlphaSlideBar(false) // אנחנו לא צריכים שקיפות (Alpha)
+                .attachBrightnessSlideBar(true) // מוסיף פס בהירות כדי שתוכלי לבחור גוונים כהים/בהירים
+                .show();
     }
 
     private void loadGameData() {
@@ -319,12 +322,18 @@ public class PaintFragment extends Fragment {
     public void onResume() {
         super.onResume();
         toggleBottomNavigation(false);
+        if (mediaPlayer != null && !isMuted) {
+            mediaPlayer.start();
+        }
     }
 
     @Override
     public void onPause() {
         super.onPause();
         toggleBottomNavigation(true);
+        if (mediaPlayer != null && mediaPlayer.isPlaying()) {
+            mediaPlayer.pause();
+        }
     }
 
     @Override

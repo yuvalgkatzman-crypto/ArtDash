@@ -12,7 +12,8 @@ import android.view.ViewGroup;
 import android.widget.ImageButton;
 import android.widget.SeekBar;
 import android.widget.Toast;
-
+import com.skydoves.colorpickerview.ColorPickerDialog;
+import com.skydoves.colorpickerview.listeners.ColorEnvelopeListener;
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.fragment.app.Fragment;
@@ -35,7 +36,6 @@ import okhttp3.Callback;
 import okhttp3.OkHttpClient;
 import okhttp3.Request;
 import okhttp3.Response;
-import yuku.ambilwarna.AmbilWarnaDialog;
 
 public class FreePlayFragment extends Fragment {
 
@@ -145,18 +145,24 @@ public class FreePlayFragment extends Fragment {
     }
 
     private void openColorPickerDialog() {
-        AmbilWarnaDialog colorPicker = new AmbilWarnaDialog(getContext(), Color.BLACK, new AmbilWarnaDialog.OnAmbilWarnaListener() {
-            @Override
-            public void onCancel(AmbilWarnaDialog dialog) {}
-            @Override
-            public void onOk(AmbilWarnaDialog dialog, int color) {
-                drawingView.setEraserMode(false);
-                drawingView.setColor(color);
-                ImageButton colorButton = getView().findViewById(R.id.btnColorWheel);
-                if (colorButton != null) colorButton.setImageTintList(ColorStateList.valueOf(color));
-            }
-        });
-        colorPicker.show();
+        new ColorPickerDialog.Builder(getContext())
+                .setTitle("Choose Color")
+                .setPreferenceName("MyColorPicker")
+                .setPositiveButton("Confirm", (ColorEnvelopeListener) (envelope, fromUser) -> {
+                    int color = envelope.getColor();
+
+                    drawingView.setEraserMode(false);
+                    drawingView.setColor(color);
+
+                    ImageButton colorButton = (ImageButton) getView().findViewById(R.id.btnColorWheel);
+                    if (colorButton != null) {
+                        colorButton.setImageTintList(ColorStateList.valueOf(color));
+                    }
+                })
+                .setNegativeButton("Cancel", (dialogInterface, i) -> dialogInterface.dismiss())
+                .attachAlphaSlideBar(false)
+                .attachBrightnessSlideBar(true)
+                .show();
     }
 
     private void saveDrawingToCloud() {
@@ -168,12 +174,9 @@ public class FreePlayFragment extends Fragment {
 
             String userId = FirebaseAuth.getInstance().getCurrentUser().getUid();
 
-            db.collection("User").document(userId)
-                    .update("myDrawings", imageString)
-                    .addOnSuccessListener(aVoid -> {
-                        saveToUserGallery(userId, imageString);
-                        Toast.makeText(getContext(), "Masterpiece saved!", Toast.LENGTH_SHORT).show();
-                    });
+            saveToUserGallery(userId, imageString);
+            Toast.makeText(getContext(), "Masterpiece saved!", Toast.LENGTH_SHORT).show();
+
         } catch (Exception e) {
             Toast.makeText(getContext(), "Error saving", Toast.LENGTH_SHORT).show();
         }
@@ -187,6 +190,22 @@ public class FreePlayFragment extends Fragment {
 
         db.collection("User").document(userId)
                 .collection("myDrawings").add(personalData);
+    }
+
+    @Override
+    public void onResume() {
+        super.onResume();
+        if (mediaPlayer != null && !isMuted) {
+            mediaPlayer.start();
+        }
+    }
+
+    @Override
+    public void onPause() {
+        super.onPause();
+        if (mediaPlayer != null && mediaPlayer.isPlaying()) {
+            mediaPlayer.pause();
+        }
     }
 
     @Override

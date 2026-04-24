@@ -53,6 +53,7 @@ dependencies {
     implementation ("com.google.firebase:firebase-firestore")
     implementation("androidx.viewpager2:viewpager2:1.1.0")
     implementation("com.squareup.okhttp3:okhttp:4.10.0")
+    implementation("com.github.skydoves:colorpickerview:2.2.4")
 
 
 

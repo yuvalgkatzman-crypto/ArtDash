@@ -36,4 +36,14 @@
         android:backgroundTint="#8B5CF6"
         android:text="Save to Phone Gallery"
         app:cornerRadius="20dp" />
+
+    <Button
+        android:id="@+id/btnDeleteDrawing"
+        android:layout_width="match_parent"
+        android:layout_height="55dp"
+        android:layout_marginTop="10dp"
+        android:backgroundTint="#EF4444"
+        android:text="Delete Drawing"
+        app:cornerRadius="20dp" />
+
 </LinearLayout>
